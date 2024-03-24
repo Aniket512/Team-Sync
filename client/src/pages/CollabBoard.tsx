@@ -32,13 +32,6 @@ function Collab() {
     } else console.log("excalidrawAPI is not defined.");
   }, 1000);
 
-  // socket?.on(
-  //   "set-initial-data",
-  //   (scene: readonly ExcalidrawElement[] | null) => {
-  //     debouncedUpdateScene(scene);
-  //   }
-  // );
-
   socket?.on("receive-data", (scene: readonly ExcalidrawElement[] | null) => {
     debouncedUpdateScene(scene);
   });
