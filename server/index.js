@@ -101,10 +101,6 @@ io.on("connection", (socket) => {
       });
       await newExcalidraw.save();
     }
-
-    // io.to(projectId).emit("set-initial-data", {
-    //   elements,
-    // });
   });
 
   socket.on("send-data", (data) => {
