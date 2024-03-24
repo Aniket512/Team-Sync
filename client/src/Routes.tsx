@@ -5,7 +5,7 @@ import Login from "./pages/Login";
 import Projects from "./pages/Projects";
 import { DashboardLayout } from "./pages/DashboardLayout";
 import Invitations from "./pages/Invitations";
-import Dashboard from "./components/Dashboard";
+import Dashboard from "./components/Dashboard/Dashboard";
 import Tasks from "./pages/Tasks";
 import Settings from "./pages/Settings";
 import Survey from "./pages/Survey";

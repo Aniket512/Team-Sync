@@ -66,7 +66,7 @@ const sendInvitation = async (req, res) => {
     const notification = new Notification({
       projectId: projectId,
       userId: recipientUser._id,
-      title: `You have received an invitation for project ${projectId}`,
+      title: `You have received an invitation for project ${project.name}`,
       type: "team_invitation",
     });
 

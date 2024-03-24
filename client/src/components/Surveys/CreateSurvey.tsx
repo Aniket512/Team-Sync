@@ -9,16 +9,16 @@ import {
   Input,
   Textarea,
 } from "@nextui-org/react";
-import { SurveyInput } from "../utils/types";
-import { MyButton } from "./ui/MyButton";
+import { SurveyInput } from "../../utils/types";
+import { MyButton } from "../ui/MyButton";
 import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
 import { Trash2 } from "lucide-react";
 import axios from "axios";
-import { createSurvey, getHeaders } from "../api/urls";
+import { createSurvey, getHeaders } from "../../api/urls";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAppDispatch } from "../redux/hooks";
-import { addSurvey } from "../redux/slices/surveySlice";
+import { useAppDispatch } from "../../redux/hooks";
+import { addSurvey } from "../../redux/slices/surveySlice";
 
 const initialState = {
   title: "",

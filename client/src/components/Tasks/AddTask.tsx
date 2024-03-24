@@ -7,39 +7,39 @@ import {
   ModalFooter,
   useDisclosure,
   Input,
-  Textarea,
 } from "@nextui-org/react";
-import { InputProject } from "../../utils/types";
-import { MyButton } from "./MyButton";
+import { MyButton } from "../ui/MyButton";
 import axios from "axios";
-import { addProject } from "../../redux/slices/projectSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { toast } from "react-toastify";
-import { getHeaders, getProjects } from "../../api/urls";
+import { addTask, getHeaders } from "../../api/urls";
+import { useParams } from "react-router-dom";
+import { addNewTask } from "../../redux/slices/taskSlice";
 
-const initialState = {
-  name: "",
-  description: "",
-};
-export default function AddProject() {
+export default function AddTask() {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const [project, setProject] = useState<InputProject>(initialState);
+  const [taskName, setTaskName] = useState("");
   const dispatch = useAppDispatch();
+  const { projectId } = useParams();
 
   const handleCreate = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const body = {
+      name: taskName,
+      projectId,
+    };
     axios
-      .post(getProjects(), project, {
+      .post(addTask(), body, {
         headers: getHeaders(),
       })
       .then((res) => {
-        dispatch(addProject(res?.data));
+        dispatch(addNewTask(res?.data));
       })
       .catch((err) => {
         console.error(err);
         toast.error(err.response.data.message);
-      })
-    setProject(initialState);
+      });
+    setTaskName("");
     onClose();
   };
 
@@ -53,32 +53,19 @@ export default function AddProject() {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                Create New Project
+                Create New Task
               </ModalHeader>
               <ModalBody>
                 <form onSubmit={handleCreate} id="project-form">
                   <Input
                     autoFocus
-                    label="Name"
-                    placeholder="Name of your project"
+                    label="Title"
+                    placeholder="Title of your task"
                     variant="bordered"
                     labelPlacement="outside"
                     isRequired
-                    value={project.name}
-                    onChange={(e) =>
-                      setProject({ ...project, name: e.target.value })
-                    }
-                  />
-                  <Textarea
-                    label="Description"
-                    placeholder="Project Description"
-                    variant="bordered"
-                    labelPlacement="outside"
-                    isRequired
-                    value={project.description}
-                    onChange={(e) =>
-                      setProject({ ...project, description: e.target.value })
-                    }
+                    value={taskName}
+                    onChange={(e) => setTaskName(e.target.value)}
                   />
                 </form>
               </ModalBody>

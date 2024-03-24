@@ -13,7 +13,7 @@ export const taskSlice = createSlice({
     setTasks: (state, action: PayloadAction<TaskCardProps[]>) => {
       state.tasks = action.payload;
     },
-    addTask: (state, action: PayloadAction<TaskCardProps>) => {
+    addNewTask: (state, action: PayloadAction<TaskCardProps>) => {
       state.tasks = [...state.tasks, action.payload];
     },
     setCurrentTask: (state, action: PayloadAction<TaskDetailsProps | undefined>) => {
@@ -22,6 +22,6 @@ export const taskSlice = createSlice({
   },
 });
 
-export const { setTasks, addTask, setCurrentTask } = taskSlice.actions;
+export const { setTasks, addNewTask, setCurrentTask } = taskSlice.actions;
 
 export default taskSlice.reducer;

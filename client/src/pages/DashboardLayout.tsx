@@ -1,18 +1,22 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Outlet, useParams } from "react-router-dom";
+import { io } from "socket.io-client";
+import axios from "axios";
 import { Notifications } from "../components/ui/Notifications";
 import { UserNav } from "../components/ui/UserNav";
 import { Button } from "@nextui-org/react";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "../components/Dashboard/Sidebar";
 import { ThemeSwitcher } from "../components/ui/ThemeSwitcher";
 import { useAppDispatch } from "../redux/hooks";
 import { setCurrentProject } from "../redux/slices/projectSlice";
-import { getHeaders, getOrUpdateProject } from "../api/urls";
-import axios from "axios";
+import { BASE_URL, getHeaders, getOrUpdateProject } from "../api/urls";
+import { getUserId } from "../configs/auth";
 
 export const DashboardLayout = () => {
   const { projectId } = useParams();
+  const userId = getUserId();
+  const socket = io(BASE_URL);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const dispatch = useAppDispatch();
 
@@ -26,6 +30,12 @@ export const DashboardLayout = () => {
       dispatch(setCurrentProject(res?.data));
     })
   }, [projectId]);
+  
+  useEffect(() => {
+    if(projectId){
+      socket.emit("add-user", userId, projectId);
+    }
+  }, [userId, projectId]);
 
   return (
     <div className="flex-col">

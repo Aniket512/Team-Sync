@@ -7,14 +7,14 @@ import {
   Chip,
 } from "@nextui-org/react";
 import { Loader2 } from "lucide-react";
-import { SurveyProps } from "../utils/types";
-import { getUserId } from "../configs/auth";
-import { MyButton } from "./ui/MyButton";
+import { SurveyProps } from "../../utils/types";
+import { getUserId } from "../../configs/auth";
+import { MyButton } from "../ui/MyButton";
 import { Link } from "react-router-dom";
-import { getHeaders, getOrUpdateSurvey } from "../api/urls";
+import { getHeaders, getOrUpdateSurvey } from "../../api/urls";
 import axios from "axios";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { setSurveys } from "../redux/slices/surveySlice";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { setSurveys } from "../../redux/slices/surveySlice";
 import { toast } from "react-toastify";
 
 export default function SurveyCard({ survey }: { survey: SurveyProps }) {

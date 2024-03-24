@@ -23,12 +23,13 @@ import { io } from "socket.io-client";
 
 export const Notifications = () => {
   const [notifications, setNotifications] = useState<NotificationSchema[]>([]);
+  const [audio] = useState(new Audio('/notification.mp3'));
   const [count, setCount] = useState(0);
   const navigate = useNavigate();
   const userId = getUserId();
   const { projectId } = useParams();
   const socket = io(BASE_URL);
-
+  
   useEffect(() => {
     if (projectId) {
       socket.emit("add-user", userId, projectId);
@@ -48,9 +49,10 @@ export const Notifications = () => {
             ...prevNotifications,
           ]);
           setCount((prev) => prev + 1);
+          audio.play();
         }
       });
-    }
+      }
   }, [socket]);
 
   useEffect(() => {
@@ -66,7 +68,7 @@ export const Notifications = () => {
       })
       .catch((err) => {
         console.error(err);
-        toast.error(err.response.data.message);
+        toast.error(err.response.data.message || err.message);
       });
   }, []);
 

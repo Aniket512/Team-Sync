@@ -1,12 +1,12 @@
 import { Card, CardBody, CardHeader } from "@nextui-org/react";
 import { Users, MailWarning, Wifi } from "lucide-react";
-import InviteMember from "./ui/InviteMember";
-import { useAppSelector } from "../redux/hooks";
+import InviteMember from "./InviteMember";
+import { useAppSelector } from "../../redux/hooks";
 import { TeamMembers } from "./TeamMembers";
-import { getUserId } from "../configs/auth";
+import { getUserId } from "../../configs/auth";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import { BASE_URL } from "../api/urls";
+import { BASE_URL } from "../../api/urls";
 
 export default function Dashboard() {
   const { currentProject } = useAppSelector((state) => state.projects);

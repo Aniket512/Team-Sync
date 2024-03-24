@@ -2,23 +2,24 @@ import { useRef } from "react";
 import axios from "axios";
 import { useEffect } from "react";
 import { useState } from "react";
-import { getUserId } from "../configs/auth";
+import { getUserId } from "../../configs/auth";
 import { useParams } from "react-router-dom";
-import { Message } from "../utils/types";
+import { Message } from "../../utils/types";
 import {
   BASE_URL,
   getHeaders,
   getMessagesRoute,
   sendMessage,
-} from "../api/urls";
+} from "../../api/urls";
 import { toast } from "react-toastify";
 import { Socket, io } from "socket.io-client";
-import ChatInput from "./ChatInput";
 import moment from "moment";
+import ChatInput from "./ChatInput";
 
 const ChatContainer = ({ socket }: { socket: Socket }) => {
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [audio] = useState(new Audio('/notification.mp3'));
   const [arrivalMessage, setArrivalMessage] = useState<Message | null>(null);
   const currentUserId = getUserId();
   const { projectId } = useParams();
@@ -84,6 +85,7 @@ const ChatContainer = ({ socket }: { socket: Socket }) => {
   socket?.on("msg-receive", (msg: Message) => {
     if (msg.sender._id !== getUserId()) {
       setArrivalMessage(msg);
+      audio.play();
     }
   });
 

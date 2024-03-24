@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useEffect } from "react";
-import ProjectCard from "../components/ProjectCard";
+import ProjectCard from "../components/Projects/ProjectCard";
 import { Notifications } from "../components/ui/Notifications";
 import { UserNav } from "../components/ui/UserNav";
 import { ThemeSwitcher } from "../components/ui/ThemeSwitcher";
-import AddProject from "../components/ui/AddProject";
+import AddProject from "../components/Projects/AddProject";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setProjects } from "../redux/slices/projectSlice";
 import { getHeaders, getProjects } from "../api/urls";

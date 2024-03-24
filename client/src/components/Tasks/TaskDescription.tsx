@@ -7,12 +7,12 @@ import {
 } from "@nextui-org/react";
 import { Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
-import { MyButton } from "./ui/MyButton";
+import { MyButton } from "../ui/MyButton";
 import axios from "axios";
-import { getHeaders, getOrUpdateTask } from "../api/urls";
+import { getHeaders, getOrUpdateTask } from "../../api/urls";
 import { toast } from "react-toastify";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { setCurrentTask } from "../redux/slices/taskSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { setCurrentTask } from "../../redux/slices/taskSlice";
 import moment from "moment";
 
 export const TaskDescription = () => {

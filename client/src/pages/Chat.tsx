@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { getUserId } from "../configs/auth";
-import ChatContainer from "../components/ChatContainer";
+import ChatContainer from "../components/Chat/ChatContainer";
 import { useParams } from "react-router-dom";
 import { BASE_URL } from "../api/urls";
 

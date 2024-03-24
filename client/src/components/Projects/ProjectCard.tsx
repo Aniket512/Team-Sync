@@ -1,4 +1,4 @@
-import { ProjectProps } from "../utils/types";
+import { ProjectProps } from "../../utils/types";
 import {
   Button,
   Card,
@@ -9,7 +9,7 @@ import {
   Divider,
   Link,
 } from "@nextui-org/react";
-import { MyButton } from "./ui/MyButton";
+import { MyButton } from "../ui/MyButton";
 
 export default function ProjectCard({ project }: {project: ProjectProps}) {
   return (

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import SurveyCard from "../components/SurveyCard";
-import CreateSurvey from "../components/CreateSurvey";
+import SurveyCard from "../components/Surveys/SurveyCard";
+import CreateSurvey from "../components/Surveys/CreateSurvey";
 import axios from "axios";
 import { getHeaders, getSurveys } from "../api/urls";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";

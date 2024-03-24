@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import { ProjectDetails } from "../utils/types";
+import { ProjectDetails } from "../../utils/types";
 
 export const TeamMembers = ({ project, users }: { project: ProjectDetails, users: any[] }) => {
   return (

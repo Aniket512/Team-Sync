@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useEffect, useState } from "react";
-import { TaskCardProps, TaskDetailsProps } from "../utils/types";
+import { TaskCardProps, TaskDetailsProps } from "../../utils/types";
 import {
   Avatar,
   Card,
@@ -11,17 +11,17 @@ import {
   SelectItem,
   Tooltip,
 } from "@nextui-org/react";
-import { getColor, getStatus } from "../utils/utils";
+import { getColor, getStatus } from "../../utils/utils";
 import { Edit2Icon } from "lucide-react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { getHeaders, getOrUpdateTask } from "../api/urls";
+import { getHeaders, getOrUpdateTask } from "../../api/urls";
 import { toast } from "react-toastify";
 import moment from "moment";
-import { MyButton } from "./ui/MyButton";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { setCurrentTask } from "../redux/slices/taskSlice";
+import { MyButton } from "../ui/MyButton";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { setCurrentTask } from "../../redux/slices/taskSlice";
 
 export const TaskFields = ({ task }: { task: TaskDetailsProps }) => {
   const [edit, setEdit] = useState(false);

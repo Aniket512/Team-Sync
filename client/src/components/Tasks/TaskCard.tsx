@@ -1,4 +1,4 @@
-import { TaskCardProps } from "../utils/types";
+import { TaskCardProps } from "../../utils/types";
 import {
   Button,
   Card,
@@ -9,8 +9,8 @@ import {
   Divider,
   Link,
 } from "@nextui-org/react";
-import { MyButton } from "./ui/MyButton";
-import { getColor, getStatus } from "../utils/utils";
+import { MyButton } from "../ui/MyButton";
+import { getColor, getStatus } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 

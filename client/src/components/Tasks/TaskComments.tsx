@@ -6,7 +6,7 @@ import {
   Image,
   Textarea,
 } from "@nextui-org/react";
-import { TaskComment } from "../utils/types";
+import { TaskComment } from "../../utils/types";
 import moment from "moment";
 
 export const TaskComments = ({ comment }: { comment: TaskComment }) => {

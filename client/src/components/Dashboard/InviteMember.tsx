@@ -8,7 +8,7 @@ import {
   useDisclosure,
   Input,
 } from "@nextui-org/react";
-import { MyButton } from "./MyButton";
+import { MyButton } from "../ui/MyButton";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";

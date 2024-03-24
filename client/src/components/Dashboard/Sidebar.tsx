@@ -10,8 +10,8 @@ import {
   Users,
 } from "lucide-react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { SidebarProps } from "../utils/types";
-import { useAppSelector } from "../redux/hooks";
+import { SidebarProps } from "../../utils/types";
+import { useAppSelector } from "../../redux/hooks";
 
 export default function Sidebar({ open }: SidebarProps) {
   const project = useAppSelector((state) => state.projects.currentProject);

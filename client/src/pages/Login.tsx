@@ -1,39 +1,25 @@
-import { useState } from "react";
-import teamImg from "../assets/team.png";
-import { Button, Image } from "@nextui-org/react";
+import { Image } from "@nextui-org/react";
 import { Link, useNavigate } from "react-router-dom";
-import SignInButton from "../components/ui/SignInButton";
 import axios from "axios";
-import { setUserLoggedIn } from "../configs/auth";
 import { toast } from "react-toastify";
+import SignInButton from "../components/ui/SignInButton";
+import { setUserLoggedIn } from "../configs/auth";
+import teamImg from "../assets/team.png";
+
 
 export default function Login() {
   const navigate = useNavigate();
-  const handleSignIn = async (email: string, password: string) => {
-    // const res = await supabase.auth.signInWithPassword({
-    //   email,
-    //   password,
-    // });
-    // if (res.error) {
-    //   toast({
-    //     title: "Authentication Error",
-    //     description: res.error.message,
-    //   });
-    //   return;
-    // } else if (res.data.session) {
-    //   await handleSetUserWithProfile(res.data.session.user);
-    //   router.push("/communities");
-    // }
-  };
-
   const handleSuccess = (response: any) => {
-    axios.post("http://localhost:5000/auth/login", response).then((res) => {
-      setUserLoggedIn(res?.data);
-      navigate("/projects");
-    }).catch((err) => {
-      console.error(err);
-      toast.error(err.message)
-    })
+    axios
+      .post("http://localhost:5000/auth/login", response)
+      .then((res) => {
+        setUserLoggedIn(res?.data);
+        navigate("/projects");
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error(err.message);
+      });
   };
 
   return (
@@ -72,23 +58,9 @@ export default function Login() {
                 Sign into your existing account.
               </p>
             </div>
-            {/* <UserAuthForm handleSubmit={handleSignIn} type="SIGN_IN" /> */}
             <p className="px-8 text-center text-sm text-muted-foreground">
-              By clicking continue, you agree to our{" "}
-              <Link
-                to="/terms"
-                className="underline underline-offset-4 hover:text-primary"
-              >
-                Terms of Service
-              </Link>{" "}
-              and{" "}
-              <Link
-                to="/privacy"
-                className="underline underline-offset-4 hover:text-primary"
-              >
-                Privacy Policy
-              </Link>
-              .
+              By clicking continue, you agree to our Terms of Service and
+              Privacy Policy .
             </p>
           </div>
         </div>

@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { TaskCardProps, TaskDetailsProps } from "../utils/types";
-import { setCurrentTask } from "../redux/slices/taskSlice";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { TaskDescription } from "../components/TaskDescription";
+import { TaskCardProps, TaskDetailsProps } from "../../utils/types";
+import { setCurrentTask } from "../../redux/slices/taskSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { TaskDescription } from "./TaskDescription";
 import {
   Button,
   Textarea,
 } from "@nextui-org/react";
-import { MyButton } from "../components/ui/MyButton";
+import { MyButton } from "../ui/MyButton";
 import { useParams } from "react-router-dom";
-import { addTaskComment, getHeaders } from "../api/urls";
+import { addTaskComment, getHeaders } from "../../api/urls";
 import axios from "axios";
 import { toast } from "react-toastify";
 

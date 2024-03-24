@@ -1,17 +1,17 @@
 import { useEffect } from "react";
 import { setCurrentTask } from "../redux/slices/taskSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { TaskDescription } from "../components/TaskDescription";
+import { TaskDescription } from "../components/Tasks/TaskDescription";
 import {
   Divider,
 } from "@nextui-org/react";
-import { TaskComments } from "../components/TaskComments";
-import { TaskFields } from "../components/TaskFields";
+import { TaskComments } from "../components/Tasks/TaskComments";
+import { TaskFields } from "../components/Tasks/TaskFields";
 import { useParams } from "react-router-dom";
 import { getHeaders, getOrUpdateTask } from "../api/urls";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { AddComment } from "../components/AddComment";
+import { AddComment } from "../components/Tasks/AddComment";
 
 export const DetailedTask = () => {
   const task = useAppSelector((state) => state.tasks.currentTask);

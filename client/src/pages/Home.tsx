@@ -1,8 +1,14 @@
-import { Chip, Link } from "@nextui-org/react";
+import { Image, Link } from "@nextui-org/react";
 import { Wifi } from "lucide-react";
 import { MyButton } from "../components/ui/MyButton";
 import { ThemeSwitcher } from "../components/ui/ThemeSwitcher";
 import { isUserLoggedIn } from "../configs/auth";
+import dashboardImg from "../assets/dashboard.png";
+import heroImg from "../assets/hero.jpeg";
+import chatImg from "../assets/chat.png";
+import collabImg from "../assets/collab.png";
+import surveyImg from "../assets/survey.png";
+import tasksImg from "../assets/tasks.png";
 
 export default function Home() {
   const user = isUserLoggedIn();
@@ -12,9 +18,9 @@ export default function Home() {
       <header className="border-b border-border">
         <nav className="max-w-6xl mx-auto container flex justify-between items-center py-4">
           <div>
-            {/* <Link href="/">
-              <Image src={fullLogo} alt="app logo" width={120} />
-            </Link> */}
+            <Link href="/">
+              <Image src="/logo.png" alt="app logo" width={120} />
+            </Link>
             <ul>
               <li></li>
               <li></li>
@@ -40,19 +46,14 @@ export default function Home() {
         <div className="max-w-5xl mx-auto container">
           <div className="text-center py-10 flex flex-col items-center justify-center">
             <div className="my-6">
-              {/* <Image
-                src={hero}
+              <Image
+                src={heroImg}
                 alt="hero image"
                 width={400}
                 className="w-[500px]"
-              /> */}
+              />
             </div>
             <div className="space-y-2">
-              <div className="flex justify-center">
-                <a href="https://ably.com/" target="_blank">
-                  <Chip color="danger">Made with Ably</Chip>
-                </a>
-              </div>
               <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">
                 Unite, Communicate, and Collaborate in{" "}
                 <span className="text-orange-600 font-bold">Real Time</span>
@@ -67,7 +68,7 @@ export default function Home() {
           </div>
           <div className="mt-8 relative space-y-6">
             <div className="border-8 border-border rounded-md overflow-hidden ">
-              {/* <Image src={dashboard} alt="screenshot" className="w-full" /> */}
+              <Image src={dashboardImg} alt="screenshot" className="w-full" />
             </div>
             <div>
               <h2 className="text-2xl md:text-4xl font-semibold tracking-tight text-center">
@@ -78,9 +79,8 @@ export default function Home() {
               </p>
 
               <div className="mt-4 text-lg md:text-xl text-center tracking-tight">
-                Using Ably&apos;s Space feature along with its pub/sub
-                connections, you can monitor your community data in real time.
-                See how many members are online and know exacly who are!
+                You can monitor your community data in real time. See how many
+                members are online and know exacly who are!
               </div>
             </div>
           </div>
@@ -94,32 +94,31 @@ export default function Home() {
                 Take Advantage of Other Live Features
               </h2>
               <p className="text-center text-muted-foreground mt-4 text-lg md:text-xl">
-                Experience real time social interaction with Ably
+                Experience real time social interactions
               </p>
             </div>
             <div className="space-y-16 md:space-y-10 mt-16">
               <div>
-                <div className="grid grid-cols-12 md:gap-8 row-span-2 md:row-span-1">
-                  {/* <Image
-                    src={chat}
-                    className="border-4 border-border rounded-md overflow-hidden col-span-12 md:col-span-7"
+                <div className="flex flex-col md:gap-8 md:flex-row">
+                  <Image
+                    src={chatImg}
+                    className="border-4 border-border rounded-md overflow-hidden m-2"
                     alt="chat screenshot"
-                  /> */}
+                  />
                   <div className="col-span-12 md:col-span-5 mt-4 md:mt-0">
                     <h3 className="tracking-tight text-xl md:text-2xl text-center md:text-left font-medium mb-2 md:mb-4">
                       Chat with community members in real time
                     </h3>
                     <p className="text-lg md:text-xl text-center md:text-left">
-                      Communicate within your communities live. Using Ably&apos;
-                      pub/sub features, you will be able to chat with your
-                      fellow community-mates in real time. Send and respond to
-                      messages quickly.
+                      Communicate within your communities live. You will be able
+                      to chat with your fellow community-mates in real time.
+                      Send and respond to messages quickly.
                     </p>
                   </div>
                 </div>
               </div>
               <div>
-                <div className="grid grid-cols-12 md:gap-8 row-span-2 md:row-span-1">
+                <div className="flex flex-col md:gap-8 md:flex-row">
                   <div className="col-span-12 md:col-span-5 mt-4 md:mt-0 row-start-2 md:row-start-1">
                     <h3 className="tracking-tight text-xl md:text-2xl text-center md:text-left font-medium mb-2 md:mb-4">
                       Take surveys and get real time answers and results
@@ -131,30 +130,49 @@ export default function Home() {
                       time.
                     </p>
                   </div>
-                  {/* <Image
-                    src={surveys}
-                    className="border-4 border-border rounded-md overflow-hidden col-span-12 md:col-span-7 row-start-1"
+                  <Image
+                    src={surveyImg}
+                    className="border-4 border-border rounded-md overflow-hidden m-2"
                     alt="chat screenshot"
-                  /> */}
+                  />
                 </div>
               </div>
               <div>
-                <div className="grid grid-cols-12 md:gap-8 row-span-2 md:row-span-1">
-                  {/* <Image
-                    src={posts}
-                    className="border-4 border-border rounded-md overflow-hidden col-span-12 md:col-span-7"
+                <div className="flex flex-col md:gap-8 md:flex-row">
+                  <Image
+                    src={collabImg}
+                    className="border-4 border-border rounded-md overflow-hidden m-2"
                     alt="chat screenshot"
-                  /> */}
+                  />
                   <div className="col-span-12 md:col-span-5 mt-4 md:mt-0">
                     <h3 className="tracking-tight text-xl md:text-2xl text-center md:text-left font-medium mb-2 md:mb-4">
-                      Post and share things to your community
+                      Collab using whiteboard
                     </h3>
                     <p className="text-lg md:text-xl text-center md:text-left">
-                      Share stories, announcements, and other things within your
-                      communities. Get notified whenever a community-mate shares
-                      something.
+                      Share and discuss creative ideas and solutions with your
+                      team members using the in house integrated excalidraw
+                      platform.
                     </p>
                   </div>
+                </div>
+              </div>
+              <div>
+                <div className="flex flex-col md:gap-8 md:flex-row">
+                  <div className="col-span-12 md:col-span-5 mt-4 md:mt-0 row-start-2 md:row-start-1">
+                    <h3 className="tracking-tight text-xl md:text-2xl text-center md:text-left font-medium mb-2 md:mb-4">
+                      Create and assign tasks to the project members
+                    </h3>
+                    <p className="text-lg md:text-xl text-center md:text-left">
+                      Need to manage tasks for your project or assign them to
+                      team members? Visit your project's task management tab.
+                      Create tasks, set deadlines, and track progress.
+                    </p>
+                  </div>
+                  <Image
+                    src={tasksImg}
+                    className="border-4 border-border rounded-md overflow-hidden m-2"
+                    alt="chat screenshot"
+                  />
                 </div>
               </div>
             </div>
@@ -163,13 +181,6 @@ export default function Home() {
       </main>
       <footer className="bg-slate-900 text-white mt-24">
         <div className="container max-w-6xl py-4 mx-auto">
-          {/* <Link href="/">
-            <Image
-              src={fullLogo}
-              alt="app logo"
-              className="w-[80px] md:w-[120px]"
-            />
-          </Link> */}
           <div className="text-[12px] md:text-sm text-center mt-2">
             Aniket Mishra · &copy;2023
           </div>
