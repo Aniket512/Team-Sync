@@ -6,7 +6,7 @@ import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { debounce } from "lodash";
 import { io } from "socket.io-client";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { BASE_URL, getHeaders } from "../api/urls";
+import { BASE_URL, getExcalidraws, getHeaders } from "../api/urls";
 import { setExcalidrawAPI } from "../redux/slices/excalidrawSlice";
 
 const socket = io(BASE_URL);
@@ -16,6 +16,11 @@ function Collab() {
   const dispatch = useAppDispatch();
   const project = useAppSelector((state) => state.projects.currentProject);
   const [fetchOnce, setFetchOnce] = useState<boolean>(false);
+  const [saveDrawDebounced] = useState(() =>
+    debounce((data) => {
+      socket.emit("save-draw", data);
+    }, 3000)
+  );
 
   useEffect(() => {
     socket.emit("join-room", project?._id);
@@ -42,7 +47,7 @@ function Collab() {
     if (!project?._id) return;
     const fetchDocument = async () => {
       axios
-        .get(`http://localhost:5000/api/projects/${project?._id}/excalidraws`, {
+        .get(getExcalidraws(project._id), {
           headers: getHeaders(),
         })
         .then((res) => {
@@ -76,13 +81,13 @@ function Collab() {
       socket?.emit("send-data", data);
 
       if (Array.isArray(elements) && elements.length !== 0) {
-        socket.emit("save-draw", data);
+        saveDrawDebounced(data);
       }
     } else {
       console.log("excalidrawAPI or excalidrawData is falsy when sending data");
     }
   };
-  
+
   return (
     <>
       <div className="flex items-center justify-center h-[90vh] transition-all duration-200 ease-out">

@@ -50,6 +50,10 @@ export function getSurveys(projectId: string) {
   return `${API_URL}/projects/${projectId}/surveys`;
 }
 
+export function getExcalidraws(projectId: string) {
+  return `${API_URL}/projects/${projectId}/excalidraws`;
+}
+
 export function createSurvey() {
   return `${API_URL}/surveys`;
 }

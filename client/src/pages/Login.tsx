@@ -5,13 +5,14 @@ import { toast } from "react-toastify";
 import SignInButton from "../components/ui/SignInButton";
 import { setUserLoggedIn } from "../configs/auth";
 import teamImg from "../assets/team.png";
+import { loginUrl } from "../api/urls";
 
 
 export default function Login() {
   const navigate = useNavigate();
   const handleSuccess = (response: any) => {
     axios
-      .post("http://localhost:5000/auth/login", response)
+      .post(loginUrl(), response)
       .then((res) => {
         setUserLoggedIn(res?.data);
         navigate("/projects");
