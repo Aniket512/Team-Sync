@@ -12,6 +12,7 @@ import Survey from "./pages/Survey";
 import { DetailedSurvey } from "./pages/DetailedSurvey";
 import { DetailedTask } from "./pages/DetailedTask";
 import Collab from "./pages/Collab";
+import Chat from "./pages/Chat";
 
 export const router = createBrowserRouter([
   {
@@ -41,6 +42,10 @@ export const router = createBrowserRouter([
       {
         path: "dashboard",
         element: <Dashboard />,
+      },
+      {
+        path: "chat",
+        element: <Chat />,
       },
       {
         path: "collab",

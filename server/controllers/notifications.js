@@ -5,7 +5,7 @@ const getNotifications = async (req, res) => {
     const notifications = await Notification.find({
       userId: req.user._id,
       read: false,
-    });
+    }).sort({ createdAt: -1 });
     return res.status(200).send(notifications);
   } catch (err) {
     console.error(err);

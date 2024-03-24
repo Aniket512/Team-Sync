@@ -2,10 +2,14 @@ const Notification = require("../models/Notification");
 const Project = require("../models/Project");
 const Survey = require("../models/Survey");
 const SurveyAnswer = require("../models/SurveyAnswer");
+const { sendNotification } = require("../utils/sendNotification");
 
 const getSurvey = async (req, res) => {
   try {
     const survey = await Survey.findById(req.params.surveyId);
+    if (!survey) {
+      return res.status(404).json({ message: "Survey not found" });
+    }
     return res.status(200).json(survey);
   } catch (err) {
     console.error(err);
@@ -54,6 +58,11 @@ const createSurvey = async (req, res) => {
     });
 
     await Notification.insertMany(notifications);
+
+    notifications.forEach((notification) => {
+      sendNotification(notification);
+    });
+
     return res.status(201).json(savedSurvey);
   } catch (err) {
     console.error(err);
@@ -97,6 +106,7 @@ const patchSurvey = async (req, res) => {
       });
 
       await notification.save();
+      sendNotification(notification);
     });
     return res.status(200).json(updatedSurvey);
   } catch (err) {

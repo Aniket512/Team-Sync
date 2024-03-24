@@ -24,7 +24,7 @@ export default function Sidebar({ open }: SidebarProps) {
 
   return (
     <div
-      className={`border-r border-border md:w-[275px] lg:w-[300px] bg-white dark:bg-gray-800 shrink-0 fixed md:static md:left-auto z-50 inset-y-0 md:inset-y-auto transition-all duration-100 shadow-lg md:shadow-none
+      className={`border-r border-border md:w-[275px] lg:w-[320px] bg-white dark:bg-gray-800 shrink-0 fixed md:static md:left-auto z-50 inset-y-0 md:inset-y-auto transition-all duration-100 shadow-lg md:shadow-none
         ${open ? "left-0" : "-left-56"}`}
     >
       <div className="space-y-4 h-full">
@@ -64,26 +64,29 @@ export default function Sidebar({ open }: SidebarProps) {
                   </Button>
                 </div>
               </NavLink>
-              {/* <NavLink
-                to={`/projects/${project._id}/chat`}
-                className={({ isActive }) =>
-                  isActive ? "bg-accent text-accent-foreground" : ""
-                }
-              >
-                <Button
-                  variant="ghost"
-                  className="flex w-full justify-start py-4 h-auto border-none"
+              <NavLink to={`/projects/${project._id}/chat`}>
+                <div
+                  className={
+                    isActive(`/projects/${project?._id}/chat`)
+                      ? "bg-default-200 rounded-lg"
+                      : ""
+                  }
                 >
-                  <MessagesSquare size={24} className="mr-2" />
-                  <div className="hidden md:flex flex-col items-start">
-                    <span className="font-medium">Chat</span>
-                    <span className="text-xs text-default-500 font-medium hidden 2xl:block text-left">
-                      Converse with members.
-                    </span>
-                  </div>
-                </Button>
-              </NavLink> */}
-               <NavLink to={`/projects/${project._id}/collab`}>
+                  <Button
+                    variant="ghost"
+                    className="flex w-full justify-start py-4 h-auto border-none"
+                  >
+                    <MessagesSquare size={24} className="mr-2" />
+                    <div className="hidden md:flex flex-col items-start">
+                      <span className="font-medium">Chat</span>
+                      <span className="text-xs text-default-500 font-medium hidden 2xl:block text-left">
+                        Converse with members.
+                      </span>
+                    </div>
+                  </Button>
+                </div>
+              </NavLink>
+              <NavLink to={`/projects/${project._id}/collab`}>
                 <div
                   className={
                     isActive(`/projects/${project?._id}/collab`)

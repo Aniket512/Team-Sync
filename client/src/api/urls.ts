@@ -66,6 +66,14 @@ export function handleInvitation(invitationId: string) {
   return `${API_URL}/invitations/${invitationId}`;
 }
 
+export function sendMessage() {
+  return `${API_URL}/messages/add-message`;
+}
+
+export function getMessagesRoute() {
+  return `${API_URL}/messages`;
+}
+
 export function getHeaders() {
   return {
     'Content-Type': 'application/json',

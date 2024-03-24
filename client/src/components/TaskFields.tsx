@@ -9,6 +9,7 @@ import {
   Input,
   Select,
   SelectItem,
+  Tooltip,
 } from "@nextui-org/react";
 import { getColor, getStatus } from "../utils/utils";
 import { Edit2Icon } from "lucide-react";
@@ -58,17 +59,24 @@ export const TaskFields = ({ task }: { task: TaskDetailsProps }) => {
       body.deadline = data.deadline;
     }
 
-    console.log(data.assignees);
-    console.log(task.assignees.map((ass) => ass._id));
-    if(data.assignees && data.assignees){
-      const assigneesArray = data.assignees.split(',').map((assignee) => assignee.trim());
-    }
+    if (typeof data.assignees === "string") {
+      const assigneesArray = data.assignees
+        .split(",")
+        .map((assignee) => assignee.trim());
 
-    if (
-      JSON.stringify(data.assignees) !==
-      JSON.stringify(task.assignees.map((ass) => ass._id))
-    ) {
-      body.assignees = data.assignees;
+      if (
+        JSON.stringify(assigneesArray) !==
+        JSON.stringify(task.assignees.map((ass) => ass._id))
+      ) {
+        body.assignees = assigneesArray;
+      }
+    } else {
+      if (
+        JSON.stringify(data.assignees) !==
+        JSON.stringify(task.assignees.map((ass) => ass._id))
+      ) {
+        body.assignees = data.assignees;
+      }
     }
 
     if (taskId) {
@@ -87,8 +95,6 @@ export const TaskFields = ({ task }: { task: TaskDetailsProps }) => {
     setEdit(false);
   };
 
-  console.log(task);
-  
   return (
     <div className="flex flex-col min-w-[200px]">
       <Card>
@@ -110,19 +116,25 @@ export const TaskFields = ({ task }: { task: TaskDetailsProps }) => {
                   </p>
                   <div className="flex flex-wrap">
                     {task.assignees.map((assignee) => (
-                      <div key={assignee._id} className="mr-2">
-                        <Avatar
-                          src={
-                            assignee?.user?.avatar || assignee?.user?.name[0]
-                          }
-                          className="w-8 h-8 rounded-full"
-                        />
-                      </div>
+                      <Tooltip key={assignee._id} content={assignee?.name}>
+                        <div className="mr-2">
+                          <Avatar
+                            name={
+                              assignee?.avatar || assignee?.name[0]
+                            }
+                            className="w-8 h-8 rounded-full"
+                          />
+                        </div>
+                      </Tooltip>
                     ))}
                   </div>
                 </div>
               </div>
-              <Edit2Icon className="mr-4" onClick={handleClick} />
+              <Edit2Icon
+                className="cursor-pointer"
+                className="mr-4"
+                onClick={handleClick}
+              />
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)}>

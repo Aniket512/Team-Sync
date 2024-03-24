@@ -7,7 +7,7 @@ const notificationSchema = new mongoose.Schema(
       ref: "Project",
     },
     contentId: {
-      type: String // ref to the content (i.e. postId, surveyId)
+      type: String // ref to the content (i.e. taskId, surveyId)
     },
     title: {
       type: String,

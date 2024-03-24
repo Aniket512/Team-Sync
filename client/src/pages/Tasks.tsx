@@ -30,7 +30,7 @@ export default function Tasks() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-[90vh] flex flex-col">
       <div className="p-4">
         <div className="flex justify-between mb-6">
           <h2 className="text-3xl font-bold tracking-tight">Tasks</h2>

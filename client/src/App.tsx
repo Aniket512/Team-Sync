@@ -27,7 +27,7 @@ function App() {
   return (
     <Provider store={store}>
       <NextUIProvider>
-        <NextThemesProvider attribute="class" defaultTheme="system">
+        <NextThemesProvider attribute="class" defaultTheme="light">
           <GoogleOAuthProvider clientId="843638908791-6vkjd4qmcd3pdg355hq414c1f5b24cpc.apps.googleusercontent.com">
             <RouterProvider router={router} />
             <ToastContainer closeOnClick />

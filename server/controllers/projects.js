@@ -122,9 +122,17 @@ const getProjectTasks = async (req, res) => {
 
 const getProjectSurveys = async (req, res) => {
   try {
+    const projectId = req.params.id;
+    const project = await Project.findById(projectId);
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
     const surveys = await Survey.find({
-      projectId: req.params.id,
+      projectId: project._id,
     });
+
     return res.status(200).json(surveys);
   } catch (err) {
     console.error(err);
@@ -138,7 +146,7 @@ const getProjectSurveys = async (req, res) => {
 
 const getProjectExcalidraws = async (req, res) => {
   try {
-    const excalidraw = await Excalidraw.findOne({projectId: req.params.id});
+    const excalidraw = await Excalidraw.findOne({ projectId: req.params.id });
     return res.status(200).json(excalidraw);
   } catch (err) {
     console.error(err);

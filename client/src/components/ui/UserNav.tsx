@@ -25,9 +25,9 @@ export function UserNav() {
         <Button isIconOnly>
           <Avatar
             name={userName
-              .split(" ")
-              .map((word) => word[0]?.toUpperCase())
-              .join("")}
+              ?.split(" ")
+              ?.map((word) => word[0]?.toUpperCase())
+              ?.join("")}
           />
         </Button>
       </DropdownTrigger>

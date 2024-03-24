@@ -15,3 +15,26 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+aside.EmojiPickerReact.epr-main {
+  position: absolute;
+  bottom: 70px;
+}
+
+
+@layer utilities {
+  .scrollbar::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .scrollbar::-webkit-scrollbar-track {
+    border-radius: 100vh;
+    background: #fffffd;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: #b5b1b1;
+    border-radius: 100vh;
+    border: 3px solid #f6f7ed;
+  }
+}

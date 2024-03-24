@@ -48,7 +48,7 @@ export const TaskDescription = () => {
         .patch(getOrUpdateTask(task?._id), body, {
           headers: getHeaders(),
         })
-        .then((res) => {
+        .then((res) => {          
           dispatch(setCurrentTask(res?.data?.task));
         })
         .catch((err) => {
@@ -72,7 +72,7 @@ export const TaskDescription = () => {
                 <p className="text-xs font-medium text-default-400 mt-1">
                   Created on {moment(task?.createdAt).format("MMM D, HH:mm A")}
                 </p>
-                <Pencil fontSize="small" onClick={handleClick} />
+                <Pencil className="cursor-pointer" fontSize="small" onClick={handleClick} />
               </div>
             </div>
           </CardHeader>

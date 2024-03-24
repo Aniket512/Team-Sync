@@ -2,12 +2,13 @@ const Invitation = require("../models/Invitation");
 const Notification = require("../models/Notification");
 const Project = require("../models/Project");
 const User = require("../models/User");
+const { sendNotification } = require("../utils/sendNotification");
 
 const getInvitations = async (req, res) => {
   try {
     const invitations = await Invitation.find({
       userId: req.user._id,
-      status: "pending"
+      status: "pending",
     }).populate({
       path: "projectId",
       select: "name",
@@ -70,6 +71,7 @@ const sendInvitation = async (req, res) => {
     });
 
     await notification.save();
+    sendNotification(notification);
     return res.status(200).send(savedInvitation);
   } catch (err) {
     console.error(err);
@@ -127,7 +129,7 @@ const handleInvitation = async (req, res) => {
     });
 
     await notification.save();
-
+    sendNotification(notification);
     return res.status(200).json({
       success: true,
       message: `Invitation ${decision}ed successfully`,

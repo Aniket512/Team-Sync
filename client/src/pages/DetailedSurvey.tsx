@@ -6,20 +6,33 @@ import { getUserId } from "../configs/auth";
 import { Button, Chip } from "@nextui-org/react";
 import axios from "axios";
 import {
+  BASE_URL,
   getHeaders,
   getOrSubmitSurveyAnswers,
   getOrUpdateSurvey,
 } from "../api/urls";
 import { toast } from "react-toastify";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { setSurveys } from "../redux/slices/surveySlice";
+import { io } from "socket.io-client";
 
 export const DetailedSurvey = () => {
   const [survey, setSurvey] = useState<SurveyProps | null>(null);
   const { surveyId } = useParams();
+  const { projectId } = useParams();
+  const { surveys } = useAppSelector((state) => state.surveys);
   const currentUserId = getUserId();
-
   const [answers, setAnswers] = useState<SurveyAnswers[]>([]);
-
   const [userAnswer, setUserAnswer] = useState<SurveyAnswers | null>(null);
+  const dispatch = useAppDispatch();
+  const userId = getUserId();
+  const socket = io(BASE_URL);
+
+  useEffect(() => {
+    if (projectId) {
+      socket.emit("add-user", userId, projectId);
+    }
+  }, [userId, projectId]);
 
   useEffect(() => {
     (async () => {
@@ -33,7 +46,7 @@ export const DetailedSurvey = () => {
           })
           .catch((err) => {
             console.error(err);
-            toast.error(err.message);
+            toast.error(err.response.data.message);
           });
 
         axios
@@ -45,11 +58,11 @@ export const DetailedSurvey = () => {
               (ans) => ans.userId === currentUserId
             );
             setAnswers(res?.data);
-            setUserAnswer(userAnswer ? userAnswer : null);
+            setUserAnswer(userAnswer ?? null);
           })
           .catch((err) => {
             console.error(err);
-            toast.error(err.message);
+            toast.error(err.response.data.message);
           });
       }
     })();
@@ -67,7 +80,6 @@ export const DetailedSurvey = () => {
         headers: getHeaders(),
       })
       .then((res) => {
-        console.log(res?.data);
         setUserAnswer(res?.data);
         setAnswers((prevAnswers) => {
           const existingAnswerIndex = prevAnswers.findIndex(
@@ -81,6 +93,8 @@ export const DetailedSurvey = () => {
           }
           return [...prevAnswers];
         });
+
+        socket.emit("answer-survey", { ...res?.data, projectId });
       })
       .catch((err) => {
         console.error(err);
@@ -91,11 +105,22 @@ export const DetailedSurvey = () => {
   const handleCloseSurvey = async () => {
     if (surveyId) {
       axios
-        .patch(getOrUpdateSurvey(surveyId), {}, {
-          headers: getHeaders(),
-        })
+        .patch(
+          getOrUpdateSurvey(surveyId),
+          {},
+          {
+            headers: getHeaders(),
+          }
+        )
         .then((res) => {
           setSurvey(res?.data);
+          const updatedSurveys = surveys.map((survey) => {
+            if (survey._id === surveyId) {
+              return { ...survey, status: "closed" };
+            }
+            return survey;
+          });
+          dispatch(setSurveys(updatedSurveys));
         })
         .catch((err) => {
           console.error(err);
@@ -119,8 +144,23 @@ export const DetailedSurvey = () => {
     return {};
   }, [survey, answers]);
 
-  console.log(survey);
-  
+  socket?.on("survey-answer-receive", (data: SurveyAnswers) => {
+    if (data.userId !== getUserId()) {
+      setAnswers((prevAnswers) => {
+        const existingAnswerIndex = prevAnswers.findIndex(
+          (ans) => ans.userId === data.userId
+        );
+
+        if (existingAnswerIndex !== -1) {
+          prevAnswers[existingAnswerIndex] = data;
+        } else {
+          prevAnswers.push(data);
+        }
+        return [...prevAnswers];
+      });
+    }
+  });
+
   return (
     <div className="p-4 h-[calc(100vh-4.5rem)] flex flex-col overflow-y-auto">
       {survey ? (

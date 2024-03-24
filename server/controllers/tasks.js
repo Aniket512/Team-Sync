@@ -1,5 +1,6 @@
 const Notification = require("../models/Notification");
 const Task = require("../models/Task");
+const { sendNotification } = require("../utils/sendNotification");
 
 const createTask = async (req, res) => {
   try {
@@ -65,10 +66,11 @@ const patchTask = async (req, res) => {
             type: "task_assignment",
           });
           await notification.save();
+          sendNotification(notification);
         }
       }
     }
-    await updatedTask.populate("assignees");
+    await updatedTask.populate("assignees comments.user");
     return res.status(200).json({ task: updatedTask });
   } catch (err) {
     console.error(err);

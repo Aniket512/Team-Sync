@@ -1,5 +1,7 @@
+//@ts-nocheck
 import {
   Avatar,
+  Chip,
   Table,
   TableBody,
   TableCell,
@@ -9,16 +11,15 @@ import {
 } from "@nextui-org/react";
 import { ProjectDetails } from "../utils/types";
 
-export const TeamMembers = ({ project }: { project: ProjectDetails }) => {
+export const TeamMembers = ({ project, users }: { project: ProjectDetails, users: any[] }) => {
   return (
     <Table>
-      {/* <TableCaption>A list of {community?.name}&apos;s members</TableCaption> */}
       <TableHeader>
         <TableColumn className="">Avatar</TableColumn>
         <TableColumn>Email</TableColumn>
         <TableColumn>Full Name</TableColumn>
         <TableColumn className="">Role</TableColumn>
-        {/* <TableColumn className="">Status</TableColumn> */}
+        <TableColumn className="">Status</TableColumn>
       </TableHeader>
       <TableBody>
         {project?.members?.map((pr) => (
@@ -31,15 +32,15 @@ export const TeamMembers = ({ project }: { project: ProjectDetails }) => {
             <TableCell className="">
               {pr.isAdmin ? "Admin" : "Member"}
             </TableCell>
-            {/* <TableCell className="">
-              {members.find((ablyMember) => {
-                return ablyMember.profileData?.id === cm.id;
-              })?.isConnected ? (
-                <Badge className="bg-green-400">Online</Badge>
+            <TableCell className="">
+              {users.find((user) => {
+                return user.userId === pr.user._id;
+              })?.userId ? (
+                <Chip className="bg-green-400">Online</Chip>
               ) : (
-                <Badge variant="secondary">Offline</Badge>
+                <Chip color="default">Offline</Chip>
               )}
-            </TableCell> */}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

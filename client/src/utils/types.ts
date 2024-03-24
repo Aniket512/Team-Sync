@@ -130,3 +130,14 @@ export type SurveyAnswers = {
   choiceId: string,
   userId: string
 }
+
+export type Message = {
+  _id: string
+  fromSelf: Boolean
+  message: string
+  createdAt: Date
+  sender: {
+    _id: string
+    name: string
+  }
+}

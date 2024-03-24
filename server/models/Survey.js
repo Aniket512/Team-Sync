@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const SurveySchema = new mongoose.Schema(
   {
     projectId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Project",
       required: true,
     },
     createdBy: {

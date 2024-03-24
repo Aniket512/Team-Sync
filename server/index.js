@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const { authRouter } = require("./routes/auths");
+const { authRouter } = require("./routes/auth.routes");
 const { router } = require("./routes/routes");
 const { validateSession } = require("./middlewares/validateSession");
 const socket = require("socket.io");
@@ -46,9 +46,44 @@ const io = new socket.Server(server, {
   },
 });
 
-let excalidrawData = {};
+const onlineUsers = new Map();
+let activeUsers = [];
 
 io.on("connection", (socket) => {
+  socket.on("add-user", (userId, projectId) => {
+    onlineUsers.set(userId, socket.id);
+    if (!activeUsers.some((user) => user.userId === userId)) {
+      activeUsers.push({ userId: userId, projectId, socketId: socket.id });
+    }
+    io.emit("get-users", activeUsers);
+  });
+
+  socket.on("send-msg", (data) => {
+    const projectUsers = activeUsers.filter(
+      (user) => user.projectId === data.projectId
+    );
+
+    projectUsers.forEach((user) => {
+      const sendUserSocket = onlineUsers.get(user.userId);
+      if (sendUserSocket) {
+        io.to(sendUserSocket).emit("msg-receive", data);
+      }
+    });
+  });
+
+  socket.on("answer-survey", (data) => {
+    const projectUsers = activeUsers.filter(
+      (user) => user.projectId === data.projectId
+    );
+
+    projectUsers.forEach((user) => {
+      const sendUserSocket = onlineUsers.get(user.userId);
+      if (sendUserSocket) {
+        io.to(sendUserSocket).emit("survey-answer-receive", data);
+      }
+    });
+  });
+
   socket.on("join-room", async (projectId) => {
     socket.join(projectId);
     const excalidraw = await Excalidraw.findOne({
@@ -67,9 +102,9 @@ io.on("connection", (socket) => {
       await newExcalidraw.save();
     }
 
-    io.to(projectId).emit("set-initial-data", {
-      elements,
-    });
+    // io.to(projectId).emit("set-initial-data", {
+    //   elements,
+    // });
   });
 
   socket.on("send-data", (data) => {
@@ -85,13 +120,11 @@ io.on("connection", (socket) => {
     );
   });
 
-  // Listen for changes from clients and broadcast them to others
-  socket.on("data", (data) => {
-    excalidrawData = data;
-    io.emit("data", excalidrawData);
-  });
-
-  socket.on("answer-survey", (data) => {
-    io.emit("answer-survey", data);
+  socket.on("disconnect", () => {
+    activeUsers = activeUsers.filter((user) => user.socketId !== socket.id);
+    io.emit("get-users", activeUsers);
   });
 });
+
+const socketIoObject = io;
+module.exports.ioObject = { socketIoObject, onlineUsers };
