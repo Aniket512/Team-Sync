@@ -38,7 +38,7 @@ export const Notifications = () => {
 
   useEffect(() => {
     if (socket) {
-      socket.on("notification", (data) => {
+      socket.on("notification", (data) => {        
         if (
           !notifications.some(
             (notification) => notification._id === data.notification._id

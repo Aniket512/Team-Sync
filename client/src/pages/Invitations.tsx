@@ -10,6 +10,7 @@ import { InvitationSchema } from "../utils/types";
 import { ThemeSwitcher } from "../components/ui/ThemeSwitcher";
 import { UserNav } from "../components/ui/UserNav";
 import { Notifications } from "../components/ui/Notifications";
+import { socket } from "../configs/SocketProvider";
 
 export default function Invitations() {
   const [invitations, setInvitations] = useState<InvitationSchema[]>([]);
@@ -54,6 +55,7 @@ export default function Invitations() {
           (inv) => inv._id !== invitation._id
         );
         setInvitations(updatedInvitations);
+        socket.emit("send-notification", res?.data?.notification);
       })
       .catch((err) => {
         console.error(err);

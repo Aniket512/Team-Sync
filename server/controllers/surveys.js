@@ -2,7 +2,6 @@ const Notification = require("../models/Notification");
 const Project = require("../models/Project");
 const Survey = require("../models/Survey");
 const SurveyAnswer = require("../models/SurveyAnswer");
-const { sendNotification } = require("../utils/sendNotification");
 
 const getSurvey = async (req, res) => {
   try {
@@ -59,11 +58,9 @@ const createSurvey = async (req, res) => {
 
     await Notification.insertMany(notifications);
 
-    notifications.forEach((notification) => {
-      sendNotification(notification);
-    });
-
-    return res.status(201).json(savedSurvey);
+    return res
+      .status(201)
+      .json({ survey: savedSurvey, notifications: notifications });
   } catch (err) {
     console.error(err);
     return res.status(500).json({
@@ -96,19 +93,21 @@ const patchSurvey = async (req, res) => {
       (member) => String(member.user) !== String(req.user._id)
     );
 
-    projectMembers.forEach(async (member) => {
-      const notification = new Notification({
+    const notifications = projectMembers.map((member) => {
+      return new Notification({
         userId: member.user,
         type: "survey",
         contentId: survey._id,
         title: `Survey "${survey.title}" has just been closed. See the results`,
         projectId,
       });
-
-      await notification.save();
-      sendNotification(notification);
     });
-    return res.status(200).json(updatedSurvey);
+
+    await Notification.insertMany(notifications);
+
+    return res
+      .status(200)
+      .json({ survey: updatedSurvey, notifications: notifications });
   } catch (err) {
     console.error(err);
     return res.status(500).json({

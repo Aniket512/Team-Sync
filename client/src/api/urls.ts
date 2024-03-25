@@ -7,7 +7,7 @@ export const API_URL =
   process.env.API_URL || 'http://localhost:5000/api';
 
 export function loginUrl() {
-  return `${API_URL}/auth/login`;
+  return `${BASE_URL}/auth/login`;
 }
 
 export function getProjects() {

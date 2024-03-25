@@ -22,6 +22,7 @@ import moment from "moment";
 import { MyButton } from "../ui/MyButton";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setCurrentTask } from "../../redux/slices/taskSlice";
+import { socket } from "../../configs/SocketProvider";
 
 export const TaskFields = ({ task }: { task: TaskDetailsProps }) => {
   const [edit, setEdit] = useState(false);
@@ -85,7 +86,10 @@ export const TaskFields = ({ task }: { task: TaskDetailsProps }) => {
           headers: getHeaders(),
         })
         .then((res) => {
-          dispatch(setCurrentTask(res?.data?.task));
+          dispatch(setCurrentTask(res?.data?.task));          
+          if(res?.data?.notification){
+            socket.emit("send-notification", res?.data?.notification);
+          }
         })
         .catch((err) => {
           console.error(err);

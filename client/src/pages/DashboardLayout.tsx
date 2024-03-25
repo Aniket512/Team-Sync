@@ -12,11 +12,11 @@ import { useAppDispatch } from "../redux/hooks";
 import { setCurrentProject } from "../redux/slices/projectSlice";
 import { BASE_URL, getHeaders, getOrUpdateProject } from "../api/urls";
 import { getUserId } from "../configs/auth";
+import { socket } from "../configs/SocketProvider";
 
 export const DashboardLayout = () => {
   const { projectId } = useParams();
   const userId = getUserId();
-  const socket = io(BASE_URL);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const dispatch = useAppDispatch();
 

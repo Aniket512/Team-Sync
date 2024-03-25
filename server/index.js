@@ -16,7 +16,7 @@ app.use(
   cors({
     methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS"],
     credentials: true,
-    origin: "http://localhost:3000",
+    origin: process.env.ORIGIN,
   })
 );
 
@@ -84,6 +84,13 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("send-notification", (notification) => {
+    const sendUserSocket = onlineUsers.get(notification.userId);
+    if (sendUserSocket) {
+      io.to(sendUserSocket).emit("notification", { notification });
+    }
+  });
+
   socket.on("join-room", async (projectId) => {
     socket.join(projectId);
     const excalidraw = await Excalidraw.findOne({
@@ -121,6 +128,3 @@ io.on("connection", (socket) => {
     io.emit("get-users", activeUsers);
   });
 });
-
-const socketIoObject = io;
-module.exports.ioObject = { socketIoObject, onlineUsers };

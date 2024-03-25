@@ -13,6 +13,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getHeaders, getInvitations } from "../../api/urls";
+import { socket } from "../../configs/SocketProvider";
 
 export default function InviteMember() {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -30,7 +31,8 @@ export default function InviteMember() {
         headers: getHeaders(),
       })
       .then((res) => {
-        toast.success('Invitation sent successfully')
+        toast.success("Invitation sent successfully");
+        socket.emit("send-notification", res?.data?.notification);
       })
       .catch((err) => {
         console.error(err);

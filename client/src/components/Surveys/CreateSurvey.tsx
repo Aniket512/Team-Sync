@@ -19,6 +19,7 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../redux/hooks";
 import { addSurvey } from "../../redux/slices/surveySlice";
+import { socket } from "../../configs/SocketProvider";
 
 const initialState = {
   title: "",
@@ -57,8 +58,11 @@ export default function CreateSurvey() {
         headers: getHeaders(),
       })
       .then((res) => {
-        disptach(addSurvey(res?.data));
+        disptach(addSurvey(res?.data?.survey));
         toast.success("Survey created successfully.");
+        res?.data?.notifications.forEach((notification: any) => {
+          socket.emit("send-notification", notification);
+        });
       })
       .catch((err) => {
         console.error(err);

@@ -2,7 +2,6 @@ const Invitation = require("../models/Invitation");
 const Notification = require("../models/Notification");
 const Project = require("../models/Project");
 const User = require("../models/User");
-const { sendNotification } = require("../utils/sendNotification");
 
 const getInvitations = async (req, res) => {
   try {
@@ -71,8 +70,7 @@ const sendInvitation = async (req, res) => {
     });
 
     await notification.save();
-    sendNotification(notification);
-    return res.status(200).send(savedInvitation);
+    return res.status(200).send({ invitation: savedInvitation, notification });
   } catch (err) {
     console.error(err);
     return res.status(500).send({
@@ -129,8 +127,8 @@ const handleInvitation = async (req, res) => {
     });
 
     await notification.save();
-    sendNotification(notification);
     return res.status(200).json({
+      notification,
       success: true,
       message: `Invitation ${decision}ed successfully`,
     });

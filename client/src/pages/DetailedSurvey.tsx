@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { SurveyAnswers, SurveyProps } from "../utils/types";
+import { NotificationSchema, SurveyAnswers, SurveyProps } from "../utils/types";
 import { useParams } from "react-router-dom";
 import { getUserId } from "../configs/auth";
 import { Button, Chip } from "@nextui-org/react";
@@ -113,7 +113,7 @@ export const DetailedSurvey = () => {
           }
         )
         .then((res) => {
-          setSurvey(res?.data);
+          setSurvey(res?.data?.survey);
           const updatedSurveys = surveys.map((survey) => {
             if (survey._id === surveyId) {
               return { ...survey, status: "closed" };
@@ -121,6 +121,11 @@ export const DetailedSurvey = () => {
             return survey;
           });
           dispatch(setSurveys(updatedSurveys));
+          res &&
+            res.data &&
+            res.data.notifications.forEach((notification: NotificationSchema) => {
+              socket.emit("send-notification", notification);
+            });
         })
         .catch((err) => {
           console.error(err);
