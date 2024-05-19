@@ -43,7 +43,10 @@ const io = new socket.Server(server, {
   cors: {
     origin: process.env.ORIGIN,
     credentials: true,
+    transports: ["websocket", "polling"],
+    methods: ["GET", "POST"],
   },
+  allowEIO3: true,
 });
 
 const onlineUsers = new Map();
