@@ -35,19 +35,19 @@ mongoose
     console.log(err.message);
   });
 
-const server = app.listen(process.env.PORT, () =>
-  console.log(`Server started on ${process.env.PORT}`)
-);
-
 const io = new socket.Server(server, {
   cors: {
-    origin: process.env.ORIGIN,
+    origin: "http://localhost:3000",
     credentials: true,
     transports: ["websocket", "polling"],
     methods: ["GET", "POST"],
   },
   allowEIO3: true,
 });
+
+const server = app.listen(process.env.PORT, () =>
+  console.log(`Server started on ${process.env.PORT}`)
+);
 
 const onlineUsers = new Map();
 let activeUsers = [];
