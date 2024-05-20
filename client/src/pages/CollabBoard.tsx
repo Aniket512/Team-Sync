@@ -19,7 +19,7 @@ function Collab() {
   const [saveDrawDebounced] = useState(() =>
     debounce((data) => {
       socket.emit("save-draw", data);
-    }, 3000)
+    }, 1000)
   );
 
   useEffect(() => {
