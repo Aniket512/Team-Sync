@@ -1,7 +1,7 @@
 import { getAccessToken } from '../configs/auth';
 
 export const BASE_URL =
-  process.env.BASE_URL || 'http://team-sync-backend.glitch.me'
+  process.env.BASE_URL || 'https://team-sync-backend.glitch.me'
 
 export const API_URL =
   process.env.API_URL || 'https://team-sync-backend.glitch.me/api';
