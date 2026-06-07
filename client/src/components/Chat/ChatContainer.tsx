@@ -1,18 +1,15 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { useEffect } from "react";
-import { useState } from "react";
 import { getUserId } from "../../configs/auth";
 import { useParams } from "react-router-dom";
 import { Message } from "../../utils/types";
 import {
-  BASE_URL,
   getHeaders,
   getMessagesRoute,
   sendMessage,
 } from "../../api/urls";
 import { toast } from "react-toastify";
-import { Socket, io } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import moment from "moment";
 import ChatInput from "./ChatInput";
 
@@ -45,7 +42,21 @@ const ChatContainer = ({ socket }: { socket: Socket }) => {
         });
     }
     getMessages();
-  }, []);
+  }, [projectId]);
+
+  useEffect(() => {
+    const handleMsgReceive = (msg: Message) => {
+      if (msg.sender._id !== getUserId()) {
+        setArrivalMessage(msg);
+        audio.play();
+      }
+    };
+
+    socket?.on("msg-receive", handleMsgReceive);
+    return () => {
+      socket?.off("msg-receive", handleMsgReceive);
+    };
+  }, [socket, audio]);
 
   const handleSendMsg = (msg: string) => {
     axios

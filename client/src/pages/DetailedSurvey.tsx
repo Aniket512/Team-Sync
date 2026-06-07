@@ -26,13 +26,13 @@ export const DetailedSurvey = () => {
   const [userAnswer, setUserAnswer] = useState<SurveyAnswers | null>(null);
   const dispatch = useAppDispatch();
   const userId = getUserId();
-  const socket = io(BASE_URL);
+  const socket = useMemo(() => io(BASE_URL), []);
 
   useEffect(() => {
     if (projectId) {
       socket.emit("add-user", userId, projectId);
     }
-  }, [userId, projectId]);
+  }, [userId, projectId, socket]);
 
   useEffect(() => {
     (async () => {
@@ -54,8 +54,8 @@ export const DetailedSurvey = () => {
             headers: getHeaders(),
           })
           .then((res) => {
-            const userAnswer = answers?.find(
-              (ans) => ans.userId === currentUserId
+            const userAnswer = res?.data?.find(
+              (ans: SurveyAnswers) => ans.userId === currentUserId
             );
             setAnswers(res?.data);
             setUserAnswer(userAnswer ?? null);
@@ -66,7 +66,7 @@ export const DetailedSurvey = () => {
           });
       }
     })();
-  }, [surveyId]);
+  }, [surveyId, currentUserId]);
 
   const handleChoose = async (choiceId: string) => {
     if (!surveyId) {
@@ -149,22 +149,29 @@ export const DetailedSurvey = () => {
     return {};
   }, [survey, answers]);
 
-  socket?.on("survey-answer-receive", (data: SurveyAnswers) => {
-    if (data.userId !== getUserId()) {
-      setAnswers((prevAnswers) => {
-        const existingAnswerIndex = prevAnswers.findIndex(
-          (ans) => ans.userId === data.userId
-        );
+  useEffect(() => {
+    const handleSurveyAnswer = (data: SurveyAnswers) => {
+      if (data.userId !== getUserId()) {
+        setAnswers((prevAnswers) => {
+          const existingAnswerIndex = prevAnswers.findIndex(
+            (ans) => ans.userId === data.userId
+          );
 
-        if (existingAnswerIndex !== -1) {
-          prevAnswers[existingAnswerIndex] = data;
-        } else {
-          prevAnswers.push(data);
-        }
-        return [...prevAnswers];
-      });
-    }
-  });
+          if (existingAnswerIndex !== -1) {
+            prevAnswers[existingAnswerIndex] = data;
+          } else {
+            prevAnswers.push(data);
+          }
+          return [...prevAnswers];
+        });
+      }
+    };
+
+    socket.on("survey-answer-receive", handleSurveyAnswer);
+    return () => {
+      socket.off("survey-answer-receive", handleSurveyAnswer);
+    };
+  }, [socket]);
 
   return (
     <div className="p-4 h-[calc(100vh-4.5rem)] flex flex-col overflow-y-auto">

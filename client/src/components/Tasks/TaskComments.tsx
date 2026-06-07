@@ -3,8 +3,6 @@ import {
   CardBody,
   CardHeader,
   Divider,
-  Image,
-  Textarea,
 } from "@nextui-org/react";
 import { TaskComment } from "../../utils/types";
 import moment from "moment";

@@ -21,7 +21,7 @@ export default function Projects() {
       .then((res) => {
         dispatch(setProjects(res?.data));
       });
-  }, []);
+  }, [dispatch]);
   
   return (
     <div className="min-h-screen flex flex-col">

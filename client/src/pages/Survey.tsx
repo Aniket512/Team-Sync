@@ -26,7 +26,7 @@ export default function Survey() {
       .catch((err) => {
         console.error(err);
       });
-  }, []);
+  }, [dispatch, projectId]);
 
   return (
     <div className="h-[calc(100vh-4.5rem)] flex flex-col p-4">

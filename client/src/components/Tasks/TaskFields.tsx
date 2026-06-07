@@ -41,7 +41,7 @@ export const TaskFields = ({ task }: { task: TaskDetailsProps }) => {
       "assignees",
       task?.assignees?.map((ass) => ass._id)
     );
-  }, []);
+  }, [setValue, task?.status, task.deadline, task?.assignees]);
 
   const handleClick = () => {
     setEdit(true);
@@ -135,8 +135,7 @@ export const TaskFields = ({ task }: { task: TaskDetailsProps }) => {
                 </div>
               </div>
               <Edit2Icon
-                className="cursor-pointer"
-                className="mr-4"
+                className="cursor-pointer mr-4"
                 onClick={handleClick}
               />
             </div>

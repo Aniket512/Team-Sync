@@ -1,5 +1,5 @@
 import { Button } from "@nextui-org/react";
-import { ArrowLeft, Loader2, Presentation, ScrollText } from "lucide-react";
+import { ArrowLeft, Loader2, Presentation } from "lucide-react";
 
 import {
   LayoutDashboard,

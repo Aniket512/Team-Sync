@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { io } from "socket.io-client";
 import { getUserId } from "../configs/auth";
 import ChatContainer from "../components/Chat/ChatContainer";
@@ -8,13 +8,13 @@ import { BASE_URL } from "../api/urls";
 const Chat = () => {
   const userId = getUserId();
   const { projectId } = useParams();
-  const socket = io(BASE_URL);
+  const socket = useMemo(() => io(BASE_URL), []);
   
   useEffect(() => {
-    if(projectId){
+    if (projectId) {
       socket.emit("add-user", userId, projectId);
     }
-  }, [userId, projectId]);
+  }, [userId, projectId, socket]);
 
   return (
     <div className="flex h-[90vh]">

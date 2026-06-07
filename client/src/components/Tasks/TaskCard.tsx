@@ -1,13 +1,11 @@
 import { TaskCardProps } from "../../utils/types";
 import {
-  Button,
   Card,
   CardBody,
   CardFooter,
   CardHeader,
   Chip,
   Divider,
-  Link,
 } from "@nextui-org/react";
 import { MyButton } from "../ui/MyButton";
 import { getColor, getStatus } from "../../utils/utils";

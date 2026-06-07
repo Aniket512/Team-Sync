@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Outlet, useParams } from "react-router-dom";
-import { io } from "socket.io-client";
 import axios from "axios";
 import { Notifications } from "../components/ui/Notifications";
 import { UserNav } from "../components/ui/UserNav";
@@ -10,7 +9,7 @@ import Sidebar from "../components/Dashboard/Sidebar";
 import { ThemeSwitcher } from "../components/ui/ThemeSwitcher";
 import { useAppDispatch } from "../redux/hooks";
 import { setCurrentProject } from "../redux/slices/projectSlice";
-import { BASE_URL, getHeaders, getOrUpdateProject } from "../api/urls";
+import { getHeaders, getOrUpdateProject } from "../api/urls";
 import { getUserId } from "../configs/auth";
 import { socket } from "../configs/SocketProvider";
 
@@ -19,21 +18,24 @@ export const DashboardLayout = () => {
   const userId = getUserId();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const dispatch = useAppDispatch();
+  const socketRef = useRef(socket);
 
   useEffect(() => {
-    if(!projectId){
+    if (!projectId) {
       return;
     }
-    axios.get(getOrUpdateProject(projectId), {
-      headers: getHeaders()
-    }).then((res) => {
-      dispatch(setCurrentProject(res?.data));
-    })
-  }, [projectId]);
+    axios
+      .get(getOrUpdateProject(projectId), {
+        headers: getHeaders(),
+      })
+      .then((res) => {
+        dispatch(setCurrentProject(res?.data));
+      });
+  }, [dispatch, projectId]);
   
   useEffect(() => {
-    if(projectId){
-      socket.emit("add-user", userId, projectId);
+    if (projectId) {
+      socketRef.current.emit("add-user", userId, projectId);
     }
   }, [userId, projectId]);
 

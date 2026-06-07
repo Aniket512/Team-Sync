@@ -27,7 +27,7 @@ export default function Tasks() {
           toast.error(err.response.data.message);
         });
     }
-  }, []);
+  }, [dispatch, projectId]);
 
   return (
     <div className="min-h-[90vh] flex flex-col">

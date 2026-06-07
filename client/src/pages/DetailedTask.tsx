@@ -32,7 +32,7 @@ export const DetailedTask = () => {
           toast.error(err?.message);
         });
     }
-  }, []);
+  }, [dispatch, taskId]);
 
   return (
     <div className="flex justify-between m-4 md:m-10 flex-col md:flex-row gap-4 md:gap-2">

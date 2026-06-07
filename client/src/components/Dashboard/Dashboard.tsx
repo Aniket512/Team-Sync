@@ -4,24 +4,27 @@ import InviteMember from "./InviteMember";
 import { useAppSelector } from "../../redux/hooks";
 import { TeamMembers } from "./TeamMembers";
 import { getUserId } from "../../configs/auth";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { io } from "socket.io-client";
 import { BASE_URL } from "../../api/urls";
 
 export default function Dashboard() {
   const { currentProject } = useAppSelector((state) => state.projects);
   const [onlineCount, setOnlineCount] = useState(0);
-  const [users, setUsers] = useState([]);
-  const socket = io(BASE_URL);
+  const [users, setUsers] = useState<any[]>([]);
+  const socket = useMemo(() => io(BASE_URL), []);
 
   useEffect(() => {
-    if (socket) {
-      socket.on("get-users", (users) => {        
-        setUsers(users);
-        setOnlineCount(users?.length);
-      });
-    }
-  }, []);
+    const handleUsers = (users: any[]) => {
+      setUsers(users);
+      setOnlineCount(users?.length);
+    };
+
+    socket.on("get-users", handleUsers);
+    return () => {
+      socket.off("get-users", handleUsers);
+    };
+  }, [socket]);
 
   return (
     <div className="h-[calc(100vh-4.5rem)] flex flex-col p-4 overflow-auto">

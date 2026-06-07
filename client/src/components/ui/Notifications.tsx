@@ -7,7 +7,7 @@ import {
   DropdownTrigger,
 } from "@nextui-org/react";
 import { Bell } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { NotificationSchema } from "../../utils/types";
 import axios from "axios";
 import { getAccessToken, getUserId } from "../../configs/auth";
@@ -28,32 +28,36 @@ export const Notifications = () => {
   const navigate = useNavigate();
   const userId = getUserId();
   const { projectId } = useParams();
-  const socket = io(BASE_URL);
+  const socket = useMemo(() => io(BASE_URL), []);
   
   useEffect(() => {
     if (projectId) {
       socket.emit("add-user", userId, projectId);
     }
-  }, [userId, projectId]);
+  }, [userId, projectId, socket]);
 
   useEffect(() => {
-    if (socket) {
-      socket.on("notification", (data) => {        
+    const handleNotification = (data: any) => {
+      setNotifications((prevNotifications) => {
         if (
-          !notifications.some(
+          prevNotifications.some(
             (notification) => notification._id === data.notification._id
           )
         ) {
-          setNotifications((prevNotifications) => [
-            data.notification,
-            ...prevNotifications,
-          ]);
-          setCount((prev) => prev + 1);
-          audio.play();
+          return prevNotifications;
         }
+
+        audio.play();
+        setCount((prev) => prev + 1);
+        return [data.notification, ...prevNotifications];
       });
-      }
-  }, [socket]);
+    };
+
+    socket.on("notification", handleNotification);
+    return () => {
+      socket.off("notification", handleNotification);
+    };
+  }, [socket, audio]);
 
   useEffect(() => {
     axios

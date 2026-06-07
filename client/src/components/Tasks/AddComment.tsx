@@ -1,8 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { TaskCardProps, TaskDetailsProps } from "../../utils/types";
+import { useState } from "react";
 import { setCurrentTask } from "../../redux/slices/taskSlice";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { TaskDescription } from "./TaskDescription";
+import { useAppDispatch } from "../../redux/hooks";
 import {
   Button,
   Textarea,
