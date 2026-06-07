@@ -1,10 +1,10 @@
 import { getAccessToken } from '../configs/auth';
 
 export const BASE_URL =
-  process.env.BASE_URL || 'https://team-sync-backend.glitch.me'
+  process.env.BASE_URL || 'https://team-sync-api.vercel.app'
 
 export const API_URL =
-  process.env.API_URL || 'https://team-sync-backend.glitch.me/api';
+  process.env.API_URL || 'https://team-sync-api.vercel.app/api';
 
 export function loginUrl() {
   return `${BASE_URL}/auth/login`;
