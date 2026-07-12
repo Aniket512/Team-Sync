@@ -2,7 +2,7 @@ import axios from "axios";
 import { getAccessToken, isUserLoggedIn, setUserLoggedOut } from "../configs/auth";
 
 const BASE_API_URL =
-  process.env.REACT_APP_API_URL || "https://team-sync-api.vercel.app/api";
+  process.env.API_URL || "https://team-sync-api.vercel.app/api";
 
 const handleUnauthorizedError = (error: any) => {
   if (error?.response?.status === 401) {
