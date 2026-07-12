@@ -2,6 +2,7 @@ const { OAuth2Client } = require("google-auth-library");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const logger = require("../utils/logger");
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -71,7 +72,7 @@ const login = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("ERROR GOOGLE LOGIN:", error);
+    logger.error("Failed Google login", { message: error.message });
     return res.status(500).json({
       error: "Internal Server Error",
     });

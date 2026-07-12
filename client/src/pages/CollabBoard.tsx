@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 import { Excalidraw } from "@excalidraw/excalidraw";
-import axios from "axios";
 import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { debounce } from "lodash";
-import { io } from "socket.io-client";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { BASE_URL, getExcalidraws, getHeaders } from "../api/urls";
+import { getExcalidraws } from "../api/urls";
 import { setExcalidrawAPI } from "../redux/slices/excalidrawSlice";
-
-const socket = io(BASE_URL);
+import { socket } from "../configs/SocketProvider";
+import apiClient from "../api/apiClient";
 
 function Collab() {
   const { excalidrawAPI } = useAppSelector((state) => state.excalidraw);
@@ -23,8 +21,10 @@ function Collab() {
   );
 
   useEffect(() => {
-    socket.emit("join-room", project?._id);
-  }, [project]);
+    if (project?._id) {
+      socket.emit("join-room", project._id);
+    }
+  }, [project?._id]);
 
   const debouncedUpdateScene = debounce((scene: any) => {
     if (excalidrawAPI) {
@@ -32,17 +32,22 @@ function Collab() {
     } else console.log("excalidrawAPI is not defined.");
   }, 1000);
 
-  socket?.on("receive-data", (scene: readonly ExcalidrawElement[] | null) => {
-    debouncedUpdateScene(scene);
-  });
+  useEffect(() => {
+    const handleReceiveData = (scene: readonly ExcalidrawElement[] | null) => {
+      debouncedUpdateScene(scene);
+    };
+
+    socket.on("receive-data", handleReceiveData);
+    return () => {
+      socket.off("receive-data", handleReceiveData);
+    };
+  }, [debouncedUpdateScene]);
 
   useEffect(() => {
     if (!project?._id) return;
     const fetchDocument = async () => {
-      axios
-        .get(getExcalidraws(project._id), {
-          headers: getHeaders(),
-        })
+      apiClient
+        .get(getExcalidraws(project._id))
         .then((res) => {
           const data = res?.data;
           if (fetchOnce) return;

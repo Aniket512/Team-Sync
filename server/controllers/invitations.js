@@ -2,6 +2,7 @@ const Invitation = require("../models/Invitation");
 const Notification = require("../models/Notification");
 const Project = require("../models/Project");
 const User = require("../models/User");
+const logger = require("../utils/logger");
 
 const getInvitations = async (req, res) => {
   try {
@@ -14,7 +15,7 @@ const getInvitations = async (req, res) => {
     });
     return res.status(200).send(invitations);
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to fetch invitations", { message: err.message });
     return res.status(500).send({
       success: false,
       error: err.message,
@@ -72,7 +73,7 @@ const sendInvitation = async (req, res) => {
     await notification.save();
     return res.status(200).send({ invitation: savedInvitation, notification });
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to send invitation", { message: err.message });
     return res.status(500).send({
       success: false,
       error: err.message,
@@ -133,7 +134,7 @@ const handleInvitation = async (req, res) => {
       message: `Invitation ${decision}ed successfully`,
     });
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to handle invitation", { message: err.message });
     return res
       .status(500)
       .json({ success: false, message: "Error handling invitation" });

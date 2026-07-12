@@ -11,11 +11,11 @@ import {
 } from "@nextui-org/react";
 import { InputProject } from "../../utils/types";
 import { MyButton } from "../ui/MyButton";
-import axios from "axios";
 import { addProject } from "../../redux/slices/projectSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { toast } from "react-toastify";
-import { getHeaders, getProjects } from "../../api/urls";
+import { getProjects } from "../../api/urls";
+import apiClient from "../../api/apiClient";
 
 const initialState = {
   name: "",
@@ -28,10 +28,8 @@ export default function AddProject() {
 
   const handleCreate = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    axios
-      .post(getProjects(), project, {
-        headers: getHeaders(),
-      })
+    apiClient
+      .post(getProjects(), project)
       .then((res) => {
         dispatch(addProject(res?.data));
       })

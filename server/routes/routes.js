@@ -6,6 +6,7 @@ const { notificationRouter } = require("./notifications.routes");
 const { surveyRouter } = require("./surveys.routes");
 const { excalidrawRouter } = require("./excalidraws.routes");
 const { messageRouter } = require("./messages.routes");
+const { analyticsRouter } = require("./analytics.routes");
 const router = express.Router();
 
 router.use("/projects", projectRouter);
@@ -15,6 +16,7 @@ router.use("/notifications", notificationRouter);
 router.use("/surveys", surveyRouter);
 router.use("/excalidraws", excalidrawRouter);
 router.use("/messages", messageRouter);
+router.use("/analytics", analyticsRouter);
 
 module.exports = {
   router,

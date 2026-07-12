@@ -37,4 +37,13 @@ aside.EmojiPickerReact.epr-main {
     border-radius: 100vh;
     border: 3px solid #f6f7ed;
   }
+
+  .dark .scrollbar::-webkit-scrollbar-track {
+    background: #1f2937;
+  }
+
+  .dark .scrollbar::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-color: #1f2937;
+  }
 }

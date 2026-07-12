@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { Card, CardBody, CardFooter, CardHeader } from "@nextui-org/react";
 import { MyButton } from "../components/ui/MyButton";
 import { getUserId } from "../configs/auth";
-import { getHeaders, getInvitations, handleInvitation } from "../api/urls";
+import { getInvitations, handleInvitation } from "../api/urls";
+import apiClient from "../api/apiClient";
 import { InvitationSchema } from "../utils/types";
 import { ThemeSwitcher } from "../components/ui/ThemeSwitcher";
 import { UserNav } from "../components/ui/UserNav";
@@ -19,10 +19,8 @@ export default function Invitations() {
 
   useEffect(() => {
     setIsLoading(true);
-    axios
-      .get(getInvitations(), {
-        headers: getHeaders(),
-      })
+    apiClient
+      .get(getInvitations())
       .then((res) => {
         setInvitations(res?.data);
       })
@@ -41,14 +39,8 @@ export default function Invitations() {
     invitation: InvitationSchema
   ) => {
     setIsLoading(true);
-    axios
-      .patch(
-        handleInvitation(invitation._id),
-        { decision },
-        {
-          headers: getHeaders(),
-        }
-      )
+    apiClient
+      .patch(handleInvitation(invitation._id), { decision })
       .then((res) => {
         toast.success(res?.data?.message);
         const updatedInvitations = invitations.filter(

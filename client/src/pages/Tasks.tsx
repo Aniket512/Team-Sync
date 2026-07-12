@@ -1,12 +1,12 @@
-import axios from "axios";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { getHeaders, getTasks } from "../api/urls";
+import { getTasks } from "../api/urls";
 import TaskCard from "../components/Tasks/TaskCard";
 import { toast } from "react-toastify";
 import AddTask from "../components/Tasks/AddTask";
 import { setTasks } from "../redux/slices/taskSlice";
+import apiClient from "../api/apiClient";
 
 export default function Tasks() {
   const { tasks } = useAppSelector((state) => state.tasks);
@@ -15,10 +15,8 @@ export default function Tasks() {
 
   useEffect(() => {
     if (projectId) {
-      axios
-        .get(getTasks(projectId), {
-          headers: getHeaders(),
-        })
+      apiClient
+        .get(getTasks(projectId))
         .then((res) => {
           dispatch(setTasks(res?.data));
         })

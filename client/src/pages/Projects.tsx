@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect } from "react";
 import ProjectCard from "../components/Projects/ProjectCard";
 import { Notifications } from "../components/ui/Notifications";
@@ -7,17 +6,16 @@ import { ThemeSwitcher } from "../components/ui/ThemeSwitcher";
 import AddProject from "../components/Projects/AddProject";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setProjects } from "../redux/slices/projectSlice";
-import { getHeaders, getProjects } from "../api/urls";
+import { getProjects } from "../api/urls";
+import apiClient from "../api/apiClient";
 
 export default function Projects() {
   const { projects } = useAppSelector((state) => state.projects);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    axios
-      .get(getProjects(), {
-        headers: getHeaders(),
-      })
+    apiClient
+      .get(getProjects())
       .then((res) => {
         dispatch(setProjects(res?.data));
       });

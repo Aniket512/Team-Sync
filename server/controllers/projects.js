@@ -3,6 +3,7 @@ const Invitation = require("../models/Invitation");
 const Project = require("../models/Project");
 const Survey = require("../models/Survey");
 const Task = require("../models/Task");
+const logger = require("../utils/logger");
 
 const getProjects = async (req, res) => {
   try {
@@ -11,7 +12,7 @@ const getProjects = async (req, res) => {
     }).select("name description isActive");
     return res.status(200).json(projects);
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to fetch projects", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       error: err.message,
@@ -38,7 +39,7 @@ const createProject = async (req, res) => {
     const savedProject = await newProject.save();
     res.status(201).json(savedProject);
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to create project", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       message: `An error occured while creating the project. ${err.message}`,
@@ -64,7 +65,7 @@ const patchProject = async (req, res) => {
 
     res.status(200).json(project);
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to update project", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       message: `An error occured while updating the project. ${err.message}`,
@@ -102,7 +103,6 @@ const getProjectDetails = async (req, res) => {
     });
   }
 };
-const deleteProject = async (req, res) => {};
 
 const getProjectTasks = async (req, res) => {
   try {
@@ -112,7 +112,7 @@ const getProjectTasks = async (req, res) => {
 
     res.status(200).json(tasks);
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to fetch project tasks", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       message: `An error occured while fetching the tasks. ${err.message}`,
@@ -135,7 +135,7 @@ const getProjectSurveys = async (req, res) => {
 
     return res.status(200).json(surveys);
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to fetch project surveys", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       error: err.message,
@@ -149,7 +149,7 @@ const getProjectExcalidraws = async (req, res) => {
     const excalidraw = await Excalidraw.findOne({ projectId: req.params.id });
     return res.status(200).json(excalidraw);
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to fetch project excalidraws", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       error: err.message,
@@ -162,7 +162,6 @@ module.exports = {
   getProjects,
   createProject,
   patchProject,
-  deleteProject,
   getProjectTasks,
   getProjectDetails,
   getProjectSurveys,

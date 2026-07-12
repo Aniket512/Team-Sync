@@ -4,10 +4,10 @@ import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { getUserId } from "../configs/auth";
 import { Divider, Input } from "@nextui-org/react";
 import { MyButton } from "../components/ui/MyButton";
-import { getHeaders, getOrUpdateProject } from "../api/urls";
-import axios from "axios";
+import { getOrUpdateProject } from "../api/urls";
 import { setCurrentProject } from "../redux/slices/projectSlice";
 import { toast } from "react-toastify";
+import apiClient from "../api/apiClient";
 
 export default function Settings() {
   const [isLoading, setIsLoading] = useState(false);
@@ -39,10 +39,8 @@ export default function Settings() {
       return;
     }
     setIsLoading(true);
-    axios
-      .patch(getOrUpdateProject(currentProject?._id), formState, {
-        headers: getHeaders(),
-      })
+    apiClient
+      .patch(getOrUpdateProject(currentProject?._id), formState)
       .then((res) => {
         dispatch(setCurrentProject(res?.data));
         toast.success("Project Details updated Successfully");

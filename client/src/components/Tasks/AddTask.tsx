@@ -9,10 +9,10 @@ import {
   Input,
 } from "@nextui-org/react";
 import { MyButton } from "../ui/MyButton";
-import axios from "axios";
 import { useAppDispatch } from "../../redux/hooks";
 import { toast } from "react-toastify";
-import { addTask, getHeaders } from "../../api/urls";
+import { addTask } from "../../api/urls";
+import apiClient from "../../api/apiClient";
 import { useParams } from "react-router-dom";
 import { addNewTask } from "../../redux/slices/taskSlice";
 
@@ -28,10 +28,8 @@ export default function AddTask() {
       name: taskName,
       projectId,
     };
-    axios
-      .post(addTask(), body, {
-        headers: getHeaders(),
-      })
+    apiClient
+      .post(addTask(), body)
       .then((res) => {
         dispatch(addNewTask(res?.data));
       })

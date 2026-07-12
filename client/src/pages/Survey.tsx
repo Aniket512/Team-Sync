@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import SurveyCard from "../components/Surveys/SurveyCard";
 import CreateSurvey from "../components/Surveys/CreateSurvey";
-import axios from "axios";
-import { getHeaders, getSurveys } from "../api/urls";
+import { getSurveys } from "../api/urls";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setSurveys } from "../redux/slices/surveySlice";
 import { useParams } from "react-router-dom";
+import apiClient from "../api/apiClient";
 
 export default function Survey() {
   const { surveys } = useAppSelector((state) => state.surveys);
@@ -16,10 +16,8 @@ export default function Survey() {
     if (!projectId) {
       return;
     }
-    axios
-      .get(getSurveys(projectId), {
-        headers: getHeaders(),
-      })
+    apiClient
+      .get(getSurveys(projectId))
       .then((res) => {
         dispatch(setSurveys(res?.data));
       })

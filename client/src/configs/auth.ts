@@ -9,17 +9,17 @@ interface User {
 export const isUserLoggedIn = (): boolean => {
   const userString: string | null = localStorage.getItem("user");
 
-  if (userString === null) {
+  if (!userString) {
     return false;
   }
 
-  const user: User = JSON.parse(userString);
-
-  if (!user || !user.access_token) {
+  try {
+    const user: User = JSON.parse(userString);
+    return Boolean(user && user.access_token);
+  } catch {
+    localStorage.removeItem("user");
     return false;
   }
-
-  return true;
 };
 
 export const setUserLoggedIn = (user: User): void => {
@@ -27,12 +27,22 @@ export const setUserLoggedIn = (user: User): void => {
 };
 
 export const setUserLoggedOut = (): void => {
-  localStorage.clear();
+  localStorage.removeItem("user");
 };
 
 export const getUserData = (): User | null => {
   const userDataString: string | null = localStorage.getItem("user");
-  return userDataString ? JSON.parse(userDataString) : null;
+
+  if (!userDataString) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(userDataString);
+  } catch {
+    localStorage.removeItem("user");
+    return null;
+  }
 };
 
 export const getUserId = (): string => {

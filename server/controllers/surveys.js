@@ -2,6 +2,7 @@ const Notification = require("../models/Notification");
 const Project = require("../models/Project");
 const Survey = require("../models/Survey");
 const SurveyAnswer = require("../models/SurveyAnswer");
+const logger = require("../utils/logger");
 
 const getSurvey = async (req, res) => {
   try {
@@ -11,7 +12,7 @@ const getSurvey = async (req, res) => {
     }
     return res.status(200).json(survey);
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to fetch survey", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       error: err.message,
@@ -62,7 +63,7 @@ const createSurvey = async (req, res) => {
       .status(201)
       .json({ survey: savedSurvey, notifications: notifications });
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to create survey", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       error: err.message,
@@ -109,7 +110,7 @@ const patchSurvey = async (req, res) => {
       .status(200)
       .json({ survey: updatedSurvey, notifications: notifications });
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to close survey", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       error: err.message,
@@ -125,7 +126,7 @@ const fetchSurveyAnswers = async (req, res) => {
     });
     res.status(200).json(answers);
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to fetch survey answers", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       error: err.message,
@@ -166,7 +167,7 @@ const submitSurveyAnswer = async (req, res) => {
     await answer.save();
     res.status(201).json(answer);
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to submit survey answer", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       error: err.message,
@@ -190,7 +191,7 @@ const deleteSurvey = async (req, res) => {
       data: null,
     });
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to delete survey", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       error: err.message,

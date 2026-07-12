@@ -13,8 +13,8 @@ import { SurveyInput } from "../../utils/types";
 import { MyButton } from "../ui/MyButton";
 import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
 import { Trash2 } from "lucide-react";
-import axios from "axios";
-import { createSurvey, getHeaders } from "../../api/urls";
+import { createSurvey } from "../../api/urls";
+import apiClient from "../../api/apiClient";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../redux/hooks";
@@ -53,10 +53,8 @@ export default function CreateSurvey() {
       projectId,
     };
 
-    axios
-      .post(createSurvey(), body, {
-        headers: getHeaders(),
-      })
+    apiClient
+      .post(createSurvey(), body)
       .then((res) => {
         disptach(addSurvey(res?.data?.survey));
         toast.success("Survey created successfully.");

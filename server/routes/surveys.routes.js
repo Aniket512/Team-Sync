@@ -7,13 +7,19 @@ const {
   deleteSurvey,
   patchSurvey,
 } = require("../controllers/surveys");
+const { validateRequest } = require("../middlewares/validateRequest");
+const {
+  createSurveySchema,
+  patchSurveySchema,
+  submitSurveyAnswerSchema,
+} = require("../validations");
 const surveyRouter = express.Router();
 
-surveyRouter.post("/", createSurvey);
+surveyRouter.post("/", validateRequest(createSurveySchema), createSurvey);
 surveyRouter.get("/:surveyId", getSurvey);
-surveyRouter.patch("/:surveyId", patchSurvey);
+surveyRouter.patch("/:surveyId", validateRequest(patchSurveySchema), patchSurvey);
 surveyRouter.get("/:surveyId/survey-answers", fetchSurveyAnswers);
-surveyRouter.post("/:surveyId/survey-answers", submitSurveyAnswer);
+surveyRouter.post("/:surveyId/survey-answers", validateRequest(submitSurveyAnswerSchema), submitSurveyAnswer);
 surveyRouter.delete("/:surveyId", deleteSurvey);
 
 module.exports = {

@@ -1,5 +1,6 @@
 const Notification = require("../models/Notification");
 const Task = require("../models/Task");
+const logger = require("../utils/logger");
 
 const createTask = async (req, res) => {
   try {
@@ -21,7 +22,7 @@ const createTask = async (req, res) => {
     const task = await newTask.save();
     res.status(201).json(task);
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to create task", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       message: `An error occured while creating the task. ${err.message}`,
@@ -73,7 +74,7 @@ const patchTask = async (req, res) => {
     await updatedTask.populate("assignees comments.user");
     return res.status(200).json({ task: updatedTask, notification: newNotification });
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to update task", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       error: err.message,
@@ -96,7 +97,7 @@ const deleteTask = async (req, res) => {
       data: null,
     });
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to delete task", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       message: `An error occured while deleting the task. ${err.message}`,
@@ -122,7 +123,7 @@ const addTaskComment = async (req, res) => {
     await updatedTask.populate("comments.user");
     return res.status(200).json({ task: updatedTask });
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to add task comment", { message: err.message });
     return res.status(500).json({
       code: "INTERNAL SERVER ERROR",
       message: `An error occured while adding the comment. ${err.message}`,
@@ -144,7 +145,7 @@ const getTask = async (req, res) => {
 
     res.status(200).json(task);
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to fetch task", { message: err.message });
     return res.status(500).json({
       error: err.message,
       message: `An error occured while adding the comment.`,

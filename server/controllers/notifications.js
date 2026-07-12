@@ -1,4 +1,5 @@
 const Notification = require("../models/Notification");
+const logger = require("../utils/logger");
 
 const getNotifications = async (req, res) => {
   try {
@@ -8,7 +9,7 @@ const getNotifications = async (req, res) => {
     }).sort({ createdAt: -1 });
     return res.status(200).send(notifications);
   } catch (err) {
-    console.error(err);
+    logger.error("Failed to fetch notifications", { message: err.message });
     return res.status(500).send({
       success: false,
       error: err.message,
@@ -38,7 +39,7 @@ const markNotificationRead = async (req, res) => {
       message: "Notification marked as read",
     });
   } catch (error) {
-    console.error(error);
+    logger.error("Failed to mark notification as read", { message: error.message });
     return res.status(500).json({
       success: false,
       error: error.message,

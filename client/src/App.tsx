@@ -7,28 +7,16 @@ import "react-toastify/dist/ReactToastify.css";
 import { Provider } from "react-redux";
 import { router } from "./Routes";
 import { store } from "./redux/store";
-import axios from "axios";
-import { isUserLoggedIn, setUserLoggedOut } from "./configs/auth";
+import "./api/apiClient";
 
-axios.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error?.response?.status === 401) {
-      if (isUserLoggedIn()) {
-        setUserLoggedOut();
-      }
-      window.location.href = "/login";
-    }
-    return Promise.reject(error);
-  }
-);
+const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID!;
 
 function App() {
   return (
     <Provider store={store}>
       <NextUIProvider>
         <NextThemesProvider attribute="class" defaultTheme="light">
-          <GoogleOAuthProvider clientId="843638908791-6vkjd4qmcd3pdg355hq414c1f5b24cpc.apps.googleusercontent.com">
+          <GoogleOAuthProvider clientId={googleClientId}>
             <RouterProvider router={router} />
             <ToastContainer closeOnClick />
           </GoogleOAuthProvider>

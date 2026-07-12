@@ -8,10 +8,10 @@ import {
 import { TaskComments } from "../components/Tasks/TaskComments";
 import { TaskFields } from "../components/Tasks/TaskFields";
 import { useParams } from "react-router-dom";
-import { getHeaders, getOrUpdateTask } from "../api/urls";
-import axios from "axios";
+import { getOrUpdateTask } from "../api/urls";
 import { toast } from "react-toastify";
 import { AddComment } from "../components/Tasks/AddComment";
+import apiClient from "../api/apiClient";
 
 export const DetailedTask = () => {
   const task = useAppSelector((state) => state.tasks.currentTask);
@@ -20,10 +20,8 @@ export const DetailedTask = () => {
 
   useEffect(() => {
     if (taskId) {
-      axios
-        .get(getOrUpdateTask(taskId), {
-          headers: getHeaders(),
-        })
+      apiClient
+        .get(getOrUpdateTask(taskId))
         .then((res) => {
           dispatch(setCurrentTask(res?.data));
         })

@@ -7,9 +7,9 @@ import {
 } from "@nextui-org/react";
 import { MyButton } from "../ui/MyButton";
 import { useParams } from "react-router-dom";
-import { addTaskComment, getHeaders } from "../../api/urls";
-import axios from "axios";
+import { addTaskComment } from "../../api/urls";
 import { toast } from "react-toastify";
+import apiClient from "../../api/apiClient";
 
 export const AddComment = () => {
   const [addComment, setAddComment] = useState(false);
@@ -19,14 +19,8 @@ export const AddComment = () => {
 
   const handleAddComment = () => {
     if (taskId) {
-      axios
-        .post(
-          addTaskComment(taskId),
-          { comment },
-          {
-            headers: getHeaders(),
-          }
-        )
+      apiClient
+        .post(addTaskComment(taskId), { comment })
         .then((res) => {
           dispatch(setCurrentTask(res?.data?.task));
         })

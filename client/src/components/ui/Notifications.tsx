@@ -7,34 +7,22 @@ import {
   DropdownTrigger,
 } from "@nextui-org/react";
 import { Bell } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NotificationSchema } from "../../utils/types";
-import axios from "axios";
-import { getAccessToken, getUserId } from "../../configs/auth";
 import { toast } from "react-toastify";
 import {
-  BASE_URL,
-  getHeaders,
   getNotifications,
   markNotificationRead,
 } from "../../api/urls";
-import { useNavigate, useParams } from "react-router-dom";
-import { io } from "socket.io-client";
+import apiClient from "../../api/apiClient";
+import { useNavigate } from "react-router-dom";
+import { socket } from "../../configs/SocketProvider";
 
 export const Notifications = () => {
   const [notifications, setNotifications] = useState<NotificationSchema[]>([]);
   const [audio] = useState(new Audio('/notification.mp3'));
   const [count, setCount] = useState(0);
   const navigate = useNavigate();
-  const userId = getUserId();
-  const { projectId } = useParams();
-  const socket = useMemo(() => io(BASE_URL), []);
-  
-  useEffect(() => {
-    if (projectId) {
-      socket.emit("add-user", userId, projectId);
-    }
-  }, [userId, projectId, socket]);
 
   useEffect(() => {
     const handleNotification = (data: any) => {
@@ -57,15 +45,11 @@ export const Notifications = () => {
     return () => {
       socket.off("notification", handleNotification);
     };
-  }, [socket, audio]);
+  }, [audio]);
 
   useEffect(() => {
-    axios
-      .get(getNotifications(), {
-        headers: {
-          access_token: getAccessToken(),
-        },
-      })
+    apiClient
+      .get(getNotifications())
       .then((res) => {
         setNotifications(res?.data);
         setCount(res?.data?.length);
@@ -81,14 +65,8 @@ export const Notifications = () => {
     notification: NotificationSchema
   ) => {
     e.preventDefault();
-    axios
-      .patch(
-        markNotificationRead(notification._id),
-        {},
-        {
-          headers: getHeaders(),
-        }
-      )
+    apiClient
+      .patch(markNotificationRead(notification._id), {})
       .then((res) => {
         setCount((prev) => prev - 1);
         const updatedNotifications = notifications.filter(
@@ -107,6 +85,10 @@ export const Notifications = () => {
           navigate(
             `/projects/${notification.projectId}/tasks/${notification.contentId}`
           );
+        }
+        // Chat @mention (and other info) notifications open the project chat
+        if (notification.type === "info" && notification.projectId) {
+          navigate(`/projects/${notification.projectId}/chat`);
         }
       })
       .catch((err) => {

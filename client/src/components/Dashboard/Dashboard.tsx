@@ -4,27 +4,33 @@ import InviteMember from "./InviteMember";
 import { useAppSelector } from "../../redux/hooks";
 import { TeamMembers } from "./TeamMembers";
 import { getUserId } from "../../configs/auth";
-import { useEffect, useMemo, useState } from "react";
-import { io } from "socket.io-client";
-import { BASE_URL } from "../../api/urls";
+import { useEffect, useState } from "react";
+import { socket } from "../../configs/SocketProvider";
+import ProjectAnalytics from "./ProjectAnalytics";
 
 export default function Dashboard() {
   const { currentProject } = useAppSelector((state) => state.projects);
   const [onlineCount, setOnlineCount] = useState(0);
-  const [users, setUsers] = useState<any[]>([]);
-  const socket = useMemo(() => io(BASE_URL), []);
+  const [onlineUserIds, setOnlineUserIds] = useState<string[]>([]);
 
   useEffect(() => {
     const handleUsers = (users: any[]) => {
-      setUsers(users);
-      setOnlineCount(users?.length);
+      // Normalize to strings so ObjectId vs string comparisons stay reliable
+      const ids = (users || []).map((u: any) => String(u.userId));
+      setOnlineUserIds(ids);
+      setOnlineCount(ids.length);
     };
 
     socket.on("get-users", handleUsers);
+    // Request current presence in case add-user already fired before this mounted
+    if (currentProject?._id) {
+      socket.emit("request-users", currentProject._id);
+    }
+
     return () => {
       socket.off("get-users", handleUsers);
     };
-  }, [socket]);
+  }, [currentProject?._id]);
 
   return (
     <div className="h-[calc(100vh-4.5rem)] flex flex-col p-4 overflow-auto">
@@ -87,11 +93,15 @@ export default function Dashboard() {
                 </CardHeader>
                 <div>
                   {currentProject && (
-                    <TeamMembers project={currentProject} users={users} />
+                    <TeamMembers project={currentProject} onlineUsers={onlineUserIds} />
                   )}
                 </div>
               </Card>
             </div>
+            
+            {/* Project Analytics */}
+            <ProjectAnalytics />
+            
           </div>
         </div>
       </div>

@@ -1,13 +1,21 @@
 const jwt = require("jsonwebtoken");
 
 const validateSession = async (req, res, next) => {
-  const { access_token } = req.headers;
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  const tokenHeader = req.headers.access_token;
+  let token;
 
-  if (!access_token) {
+  if (typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  } else if (typeof tokenHeader === "string") {
+    token = tokenHeader;
+  }
+
+  if (!token) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
 
-  jwt.verify(access_token, process.env.JWT_SECRET, (err, decoded) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) {
       return res.status(401).json({ message: "Unauthorized: Invalid token" });
     }

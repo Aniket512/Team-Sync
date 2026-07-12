@@ -11,11 +11,11 @@ import { SurveyProps } from "../../utils/types";
 import { getUserId } from "../../configs/auth";
 import { MyButton } from "../ui/MyButton";
 import { Link } from "react-router-dom";
-import { getHeaders, getOrUpdateSurvey } from "../../api/urls";
-import axios from "axios";
+import { getOrUpdateSurvey } from "../../api/urls";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setSurveys } from "../../redux/slices/surveySlice";
 import { toast } from "react-toastify";
+import apiClient from "../../api/apiClient";
 
 export default function SurveyCard({ survey }: { survey: SurveyProps }) {
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
@@ -26,9 +26,7 @@ export default function SurveyCard({ survey }: { survey: SurveyProps }) {
   const handleDeleteSurvey = async () => {
     setIsDeleteLoading(true);
     if(survey._id){
-      axios.delete(getOrUpdateSurvey(survey._id), {
-        headers: getHeaders()
-      }).then((res) => {        
+      apiClient.delete(getOrUpdateSurvey(survey._id)).then((res) => {        
         const updatedSurveys = surveys.filter((sur) => sur._id !== survey._id);
         dispatch(setSurveys(updatedSurveys));
       })

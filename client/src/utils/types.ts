@@ -131,6 +131,23 @@ export type SurveyAnswers = {
   userId: string
 }
 
+export type MessageSegment = {
+  type: "text" | "mention" | "task"
+  value: string
+  userId?: {
+    _id: string
+    name: string
+    email?: string
+    avatar?: string
+  } | null
+  taskId?: {
+    _id: string
+    name: string
+    status: string
+    description?: string
+  } | null
+}
+
 export type Message = {
   _id: string
   fromSelf: Boolean
@@ -139,5 +156,117 @@ export type Message = {
   sender: {
     _id: string
     name: string
+    avatar?: string
   }
+  segments?: MessageSegment[]
+}
+
+// ============== API CLIENT TYPES ==============
+export interface ApiErrorResponse {
+  status: number;
+  code?: string;
+  message: string;
+  error?: string;
+}
+
+export interface AxiosErrorConfig {
+  url?: string;
+  method?: string;
+  baseURL?: string;
+  headers?: Record<string, string>;
+}
+
+// ============== REDUX STATE TYPES ==============
+export interface UserProfile {
+  _id: string;
+  name: string;
+  email: string;
+  image?: string;
+  access_token: string;
+}
+
+export interface SocketMessage {
+  _id: string;
+  fromSelf: boolean;
+  message: string;
+  sender: UserProfile;
+  createdAt: string;
+}
+
+// ============== COMPONENT CALLBACK TYPES ==============
+export type OnTaskUpdate = (task: any, notification?: any) => void;
+export type OnSurveySubmit = (surveyId: string, answers: Record<string, any>) => void;
+export type OnMessageSend = (message: SocketMessage) => void;
+export type OnNotification = (notification: NotificationSchema) => void;
+export type OnProjectCreate = (project: ProjectProps) => void;
+
+// ============== FORM TYPES ==============
+export interface TaskFormData {
+  name: string;
+  description: string;
+  deadline?: string;
+  projectId: string;
+  assignees: string[];
+}
+
+export interface ProjectFormData {
+  name: string;
+  description: string;
+  projectType?: string;
+}
+
+export interface SurveyFormData {
+  name: string;
+  description: string;
+  questions: Array<{
+    question: string;
+    type: "text" | "radio" | "checkbox" | "rating";
+    options?: string[];
+  }>;
+  projectId: string;
+}
+
+export interface InvitationFormData {
+  email: string;
+  projectId: string;
+  role?: "admin" | "member";
+}
+
+// ============== API RESPONSE TYPES ==============
+export interface ApiResponse<T> {
+  status: number;
+  data: T;
+  message?: string;
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+// ============== CHAT TYPES ==============
+export interface TypingUser {
+  userId: string;
+  name: string;
+  projectId: string;
+  isTyping: boolean;
+}
+
+export interface ReadReceipt {
+  messageId: string;
+  userId: string;
+  readAt: Date;
+}
+
+// ============== ANALYTICS TYPES ==============
+export interface ProjectAnalytics {
+  tasksCompletedOverTime: { date: string; count: number }[];
+  surveyParticipationRate: number;
+  mostActiveChatDay: string;
+  totalTasks: number;
+  completedTasks: number;
+  totalSurveys: number;
+  totalMessages: number;
 }

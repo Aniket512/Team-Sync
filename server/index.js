@@ -2,132 +2,52 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const logger = require("./utils/logger");
+const { errorHandler, AppError } = require("./utils/errorHandler");
 const { authRouter } = require("./routes/auth.routes");
 const { router } = require("./routes/routes");
 const { validateSession } = require("./middlewares/validateSession");
-const socket = require("socket.io");
-const Excalidraw = require("./models/Excalidraw");
+const { createSocketServer } = require("./socket.service");
 const app = express();
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
+
+const PORT = process.env.PORT || 4000;
+const CLIENT_ORIGIN = process.env.ORIGIN || "http://localhost:3000";
 
 app.use(
   cors({
-    methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS"],
+    origin: CLIENT_ORIGIN,
     credentials: true,
-    origin: process.env.ORIGIN,
-  })
+    methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH", "OPTIONS"],
+  }),
 );
 
 app.use("/auth", authRouter);
 app.use("/api", validateSession, router);
 
 mongoose
-  .connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URL)
   .then(() => {
-    console.log("DB Connetion Successfull");
+    logger.info("Database connection successful");
   })
   .catch((err) => {
-    console.log(err.message);
+    logger.error("Database connection failed", { message: err.message });
   });
 
-const server = app.listen(process.env.PORT, () =>
-  console.log(`Server started on ${process.env.PORT}`)
+const server = app.listen(PORT, () => logger.info(`Server started on ${PORT}`));
+
+createSocketServer(server, CLIENT_ORIGIN, process.env.REDIS_URL).catch(
+  (error) => {
+    logger.error("Failed to initialize socket server", {
+      message: error.message,
+    });
+  },
 );
 
-const io = require("socket.io")(server, {
-  cors: {
-    origin: true,
-    credentials: true,
-    transports: ["websocket", "polling"],
-    methods: ["GET", "POST"],
-  },
-  allowEIO3: true,
+app.use((req, res, next) => {
+  next(new AppError(`Route ${req.originalUrl} not found`, 404));
 });
 
-const onlineUsers = new Map();
-let activeUsers = [];
-
-io.on("connection", (socket) => {
-  socket.on("add-user", (userId, projectId) => {
-    onlineUsers.set(userId, socket.id);
-    if (!activeUsers.some((user) => user.userId === userId)) {
-      activeUsers.push({ userId: userId, projectId, socketId: socket.id });
-    }
-    io.emit("get-users", activeUsers);
-  });
-
-  socket.on("send-msg", (data) => {
-    const projectUsers = activeUsers.filter(
-      (user) => user.projectId === data.projectId
-    );
-
-    projectUsers.forEach((user) => {
-      const sendUserSocket = onlineUsers.get(user.userId);
-      if (sendUserSocket) {
-        io.to(sendUserSocket).emit("msg-receive", data);
-      }
-    });
-  });
-
-  socket.on("answer-survey", (data) => {
-    const projectUsers = activeUsers.filter(
-      (user) => user.projectId === data.projectId
-    );
-
-    projectUsers.forEach((user) => {
-      const sendUserSocket = onlineUsers.get(user.userId);
-      if (sendUserSocket) {
-        io.to(sendUserSocket).emit("survey-answer-receive", data);
-      }
-    });
-  });
-
-  socket.on("send-notification", (notification) => {
-    const sendUserSocket = onlineUsers.get(notification.userId);
-    if (sendUserSocket) {
-      io.to(sendUserSocket).emit("notification", { notification });
-    }
-  });
-
-  socket.on("join-room", async (projectId) => {
-    socket.join(projectId);
-    const excalidraw = await Excalidraw.findOne({
-      projectId,
-    });
-
-    let elements = [];
-
-    if (excalidraw) {
-      elements = excalidraw.elements;
-    } else {
-      const newExcalidraw = new Excalidraw({
-        projectId,
-        elements: [],
-      });
-      await newExcalidraw.save();
-    }
-  });
-
-  socket.on("send-data", (data) => {
-    io.to(data.projectId).emit("receive-data", { elements: data.elements });
-  });
-
-  socket.on("save-draw", async (data) => {
-    await Excalidraw.findOneAndUpdate(
-      { projectId: data.projectId },
-      {
-        elements: data.elements,
-      }
-    );
-  });
-
-  socket.on("disconnect", () => {
-    activeUsers = activeUsers.filter((user) => user.socketId !== socket.id);
-    io.emit("get-users", activeUsers);
-  });
-});
+app.use(errorHandler);

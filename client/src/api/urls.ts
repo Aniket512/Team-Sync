@@ -1,10 +1,10 @@
 import { getAccessToken } from '../configs/auth';
 
 export const BASE_URL =
-  process.env.BASE_URL || 'https://team-sync-api.vercel.app'
+  process.env.REACT_APP_BASE_URL || "http://localhost:5000";
 
 export const API_URL =
-  process.env.API_URL || 'https://team-sync-api.vercel.app/api';
+  process.env.REACT_APP_API_URL || `${BASE_URL}/api`;
 
 export function loginUrl() {
   return `${BASE_URL}/auth/login`;
@@ -78,12 +78,16 @@ export function getMessagesRoute() {
   return `${API_URL}/messages`;
 }
 
+export function getAnalytics(projectId: string) {
+  return `${API_URL}/analytics/${projectId}`;
+}
+
 export function getHeaders() {
+  const token = getAccessToken();
+
   return {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': '*',
-    access_token: getAccessToken(),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 }
 
