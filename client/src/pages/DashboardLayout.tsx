@@ -35,19 +35,22 @@ export const DashboardLayout = () => {
   useEffect(() => {
     if (!userId || !projectId) return;
 
+    // Capture socket once so cleanup uses the same instance (eslint exhaustive-deps)
+    const activeSocket = socketRef.current;
+
     const joinPresence = () => {
-      socketRef.current.emit("add-user", userId, projectId);
+      activeSocket.emit("add-user", userId, projectId);
       // Ask server for a fresh online list (covers late Dashboard listeners)
-      socketRef.current.emit("request-users", projectId);
+      activeSocket.emit("request-users", projectId);
     };
 
     joinPresence();
-    socketRef.current.on("connect", joinPresence);
+    activeSocket.on("connect", joinPresence);
 
     return () => {
-      socketRef.current.off("connect", joinPresence);
+      activeSocket.off("connect", joinPresence);
       // Leave this project's presence when navigating away / unmounting
-      socketRef.current.emit("leave-user");
+      activeSocket.emit("leave-user");
     };
   }, [userId, projectId]);
 

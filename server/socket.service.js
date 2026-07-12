@@ -4,7 +4,27 @@ const { createAdapter } = require("@socket.io/redis-adapter");
 const logger = require("./utils/logger");
 const Excalidraw = require("./models/Excalidraw");
 
+/**
+ * Socket server — Redis is required for presence + multi-instance fan-out.
+ *
+ * Clients:
+ *   redisClient  → presence keys + notification targeting
+ *   pubClient    → Socket.IO Redis adapter publish
+ *   subClient    → Socket.IO Redis adapter subscribe
+ *
+ * Presence keys:
+ *   userSockets:{userId}                      → all sockets for a user
+ *   projectUsers:{projectId}                  → online user ids in a project
+ *   projectUserSockets:{projectId}:{userId}   → that user's sockets in a project
+ *   socketMeta:{socketId}                     → { userId, projectId } for cleanup
+ */
 const createSocketServer = async (server, clientOrigin, redisUrl) => {
+  if (!redisUrl) {
+    throw new Error(
+      "REDIS_URL is required. Presence and realtime sockets depend on Redis."
+    );
+  }
+
   const io = new Server(server, {
     cors: {
       origin: clientOrigin,
@@ -12,220 +32,134 @@ const createSocketServer = async (server, clientOrigin, redisUrl) => {
       transports: ["websocket", "polling"],
       methods: ["GET", "POST"],
     },
-    // Detect dead connections so presence can be cleaned up
     pingInterval: 25000,
     pingTimeout: 20000,
   });
 
-  const useRedis = Boolean(redisUrl);
-  const redisClient = useRedis ? new Redis(redisUrl, { lazyConnect: true }) : null;
-  const pubClient = useRedis ? redisClient.duplicate({ lazyConnect: true }) : null;
-  const subClient = useRedis ? redisClient.duplicate({ lazyConnect: true }) : null;
+  const redisClient = new Redis(redisUrl, { lazyConnect: true });
+  const pubClient = redisClient.duplicate({ lazyConnect: true });
+  const subClient = redisClient.duplicate({ lazyConnect: true });
 
-  // Local fallback maps when Redis is not configured
-  const localUserSockets = new Map(); // userId -> Set(socketId)
-  const localSocketMeta = new Map(); // socketId -> { userId, projectId }
+  // Track socket ids owned by THIS process (for pruning dead local connections)
+  const localSocketIds = new Set();
 
-  const isRedisReady = () => useRedis && redisClient?.status === "ready";
+  const isRedisReady = () => redisClient.status === "ready";
 
-  const initializeRedisAdapter = async () => {
-    if (!useRedis) {
-      logger.warn("REDIS_URL not configured: socket scaling disabled.");
-      return;
-    }
-
-    try {
-      await Promise.all([
-        redisClient.connect(),
-        pubClient.connect(),
-        subClient.connect(),
-      ]);
-      io.adapter(createAdapter(pubClient, subClient));
-      logger.info("Socket.io Redis adapter enabled.");
-    } catch (error) {
-      logger.error("Socket.io Redis adapter failed", { message: error.message });
-    }
+  const initializeRedis = async () => {
+    await Promise.all([
+      redisClient.connect(),
+      pubClient.connect(),
+      subClient.connect(),
+    ]);
+    io.adapter(createAdapter(pubClient, subClient));
+    logger.info("Socket.io Redis adapter enabled.");
   };
 
-  /** True if this process still has an active socket with that id */
   const isSocketAlive = (socketId) => Boolean(io.sockets.sockets.get(socketId));
 
-  /**
-   * Return online users for a project.
-   * Prunes socket ids with no meta (disconnect was missed) so ghosts disappear.
-   */
+  /** Online users for a project; prune sockets whose meta was already cleared */
   const getProjectUsers = async (projectId) => {
-    if (isRedisReady()) {
-      const userIds = await redisClient.smembers(`projectUsers:${projectId}`);
-      const online = [];
+    if (!isRedisReady()) return [];
 
-      for (const userId of userIds) {
-        const socketIds = await redisClient.smembers(
-          `projectUserSockets:${projectId}:${userId}`
-        );
-        let aliveCount = 0;
+    const userIds = await redisClient.smembers(`projectUsers:${projectId}`);
+    const online = [];
 
-        for (const socketId of socketIds) {
-          const meta = await redisClient.get(`socketMeta:${socketId}`);
-          // Drop entries whose meta was already cleared (missed disconnect)
-          if (!meta) {
-            await redisClient.srem(
-              `projectUserSockets:${projectId}:${userId}`,
-              socketId
-            );
-            await redisClient.srem(`userSockets:${userId}`, socketId);
-            continue;
-          }
+    for (const userId of userIds) {
+      const socketIds = await redisClient.smembers(
+        `projectUserSockets:${projectId}:${userId}`
+      );
+      let aliveCount = 0;
 
-          // If this process owns the socket and it is gone, clean it up now
-          if (localSocketMeta.has(socketId) && !isSocketAlive(socketId)) {
-            try {
-              const parsed = JSON.parse(meta);
-              await Promise.all([
-                redisClient.srem(`userSockets:${parsed.userId}`, socketId),
-                redisClient.srem(
-                  `projectUserSockets:${parsed.projectId}:${parsed.userId}`,
-                  socketId
-                ),
-                redisClient.del(`socketMeta:${socketId}`),
-              ]);
-            } catch (_) {
-              await redisClient.del(`socketMeta:${socketId}`);
-            }
-            localSocketMeta.delete(socketId);
-            continue;
-          }
-
-          aliveCount += 1;
+      for (const socketId of socketIds) {
+        const meta = await redisClient.get(`socketMeta:${socketId}`);
+        if (!meta) {
+          await redisClient.srem(
+            `projectUserSockets:${projectId}:${userId}`,
+            socketId
+          );
+          await redisClient.srem(`userSockets:${userId}`, socketId);
+          continue;
         }
 
-        if (aliveCount === 0) {
-          await redisClient.srem(`projectUsers:${projectId}`, userId);
-        } else {
-          online.push({
-            userId: String(userId),
-            projectId: String(projectId),
-          });
+        // This process owned the socket but it is gone — clean Redis now
+        if (localSocketIds.has(socketId) && !isSocketAlive(socketId)) {
+          try {
+            const parsed = JSON.parse(meta);
+            await Promise.all([
+              redisClient.srem(`userSockets:${parsed.userId}`, socketId),
+              redisClient.srem(
+                `projectUserSockets:${parsed.projectId}:${parsed.userId}`,
+                socketId
+              ),
+              redisClient.del(`socketMeta:${socketId}`),
+            ]);
+          } catch (_) {
+            await redisClient.del(`socketMeta:${socketId}`);
+          }
+          localSocketIds.delete(socketId);
+          continue;
         }
+
+        aliveCount += 1;
       }
 
-      return online;
-    }
-
-    // Local (no Redis): only count sockets that are still connected
-    const users = [];
-    const seen = new Set();
-
-    for (const [socketId, meta] of [...localSocketMeta.entries()]) {
-      if (!isSocketAlive(socketId)) {
-        localSocketMeta.delete(socketId);
-        const set = localUserSockets.get(meta.userId);
-        if (set) {
-          set.delete(socketId);
-          if (set.size === 0) localUserSockets.delete(meta.userId);
-        }
-        continue;
-      }
-      if (meta.projectId === projectId && !seen.has(meta.userId)) {
-        seen.add(meta.userId);
-        users.push({
-          userId: String(meta.userId),
-          projectId: String(meta.projectId),
+      if (aliveCount === 0) {
+        await redisClient.srem(`projectUsers:${projectId}`, userId);
+      } else {
+        online.push({
+          userId: String(userId),
+          projectId: String(projectId),
         });
       }
     }
 
-    return users;
+    return online;
   };
 
   const addSocketToUser = async (userId, socketId, projectId) => {
     const uid = String(userId);
     const pid = String(projectId);
 
-    if (isRedisReady()) {
-      await Promise.all([
-        redisClient.sadd(`userSockets:${uid}`, socketId),
-        redisClient.sadd(`projectUserSockets:${pid}:${uid}`, socketId),
-        redisClient.sadd(`projectUsers:${pid}`, uid),
-        redisClient.set(
-          `socketMeta:${socketId}`,
-          JSON.stringify({ userId: uid, projectId: pid })
-        ),
-      ]);
-      return;
-    }
-
-    const socketSet = localUserSockets.get(uid) || new Set();
-    socketSet.add(socketId);
-    localUserSockets.set(uid, socketSet);
-    localSocketMeta.set(socketId, { userId: uid, projectId: pid });
+    localSocketIds.add(socketId);
+    await Promise.all([
+      redisClient.sadd(`userSockets:${uid}`, socketId),
+      redisClient.sadd(`projectUserSockets:${pid}:${uid}`, socketId),
+      redisClient.sadd(`projectUsers:${pid}`, uid),
+      redisClient.set(
+        `socketMeta:${socketId}`,
+        JSON.stringify({ userId: uid, projectId: pid })
+      ),
+    ]);
   };
 
   const removeSocketFromUser = async (socketId) => {
-    if (isRedisReady()) {
-      const metaString = await redisClient.get(`socketMeta:${socketId}`);
-      if (!metaString) {
-        // Also clear any local leftover
-        const local = localSocketMeta.get(socketId);
-        if (local) {
-          localSocketMeta.delete(socketId);
-          return local;
-        }
-        return null;
-      }
+    localSocketIds.delete(socketId);
 
-      const { userId, projectId } = JSON.parse(metaString);
-      await Promise.all([
-        redisClient.srem(`userSockets:${userId}`, socketId),
-        redisClient.srem(`projectUserSockets:${projectId}:${userId}`, socketId),
-        redisClient.del(`socketMeta:${socketId}`),
-      ]);
+    const metaString = await redisClient.get(`socketMeta:${socketId}`);
+    if (!metaString) return null;
 
-      const remainingSockets = await redisClient.scard(
-        `projectUserSockets:${projectId}:${userId}`
-      );
-      if (remainingSockets === 0) {
-        await redisClient.srem(`projectUsers:${projectId}`, userId);
-      }
+    const { userId, projectId } = JSON.parse(metaString);
+    await Promise.all([
+      redisClient.srem(`userSockets:${userId}`, socketId),
+      redisClient.srem(`projectUserSockets:${projectId}:${userId}`, socketId),
+      redisClient.del(`socketMeta:${socketId}`),
+    ]);
 
-      localSocketMeta.delete(socketId);
-      return { userId, projectId };
+    const remainingSockets = await redisClient.scard(
+      `projectUserSockets:${projectId}:${userId}`
+    );
+    if (remainingSockets === 0) {
+      await redisClient.srem(`projectUsers:${projectId}`, userId);
     }
 
-    const meta = localSocketMeta.get(socketId);
-    if (!meta) return null;
-
-    const { userId, projectId } = meta;
-    const socketSet = localUserSockets.get(userId);
-    if (socketSet) {
-      socketSet.delete(socketId);
-      if (socketSet.size === 0) {
-        localUserSockets.delete(userId);
-      } else {
-        localUserSockets.set(userId, socketSet);
-      }
-    }
-
-    localSocketMeta.delete(socketId);
     return { userId, projectId };
   };
 
   const emitNotificationToUser = async (notification) => {
     if (!notification?.userId) return;
     const targetUserId = String(notification.userId);
-
-    if (isRedisReady()) {
-      const socketIds = await redisClient.smembers(`userSockets:${targetUserId}`);
-      for (const socketId of socketIds) {
-        io.to(socketId).emit("notification", { notification });
-      }
-      return;
-    }
-
-    const socketSet = localUserSockets.get(targetUserId);
-    if (!socketSet) return;
-
-    for (const socketId of socketSet) {
+    const socketIds = await redisClient.smembers(`userSockets:${targetUserId}`);
+    for (const socketId of socketIds) {
       io.to(socketId).emit("notification", { notification });
     }
   };
@@ -237,14 +171,14 @@ const createSocketServer = async (server, clientOrigin, redisUrl) => {
   };
 
   io.on("connection", (socket) => {
-    // Join presence for a project. Re-joining after reconnect or project switch is safe.
+    localSocketIds.add(socket.id);
+
     socket.on("add-user", async (userId, projectId) => {
       if (!userId || !projectId) return;
 
       const uid = String(userId);
       const pid = String(projectId);
 
-      // Leave previous project presence if this socket was elsewhere
       const previous = await removeSocketFromUser(socket.id);
       if (previous?.projectId && previous.projectId !== pid) {
         socket.leave(previous.projectId);
@@ -256,7 +190,6 @@ const createSocketServer = async (server, clientOrigin, redisUrl) => {
       await broadcastPresence(pid);
     });
 
-    // Explicit leave — useful when navigating away from a project
     socket.on("leave-user", async () => {
       const meta = await removeSocketFromUser(socket.id);
       if (!meta) return;
@@ -264,14 +197,12 @@ const createSocketServer = async (server, clientOrigin, redisUrl) => {
       await broadcastPresence(meta.projectId);
     });
 
-    // Client can request a fresh presence snapshot
     socket.on("request-users", async (projectId) => {
       if (!projectId) return;
       const projectUsers = await getProjectUsers(String(projectId));
       socket.emit("get-users", projectUsers);
     });
 
-    // === CHAT: Typing Indicators ===
     socket.on("typing-start", (data) => {
       if (!data?.projectId || !data?.userId || !data?.name) return;
       socket.to(data.projectId).emit("typing-update", {
@@ -287,16 +218,6 @@ const createSocketServer = async (server, clientOrigin, redisUrl) => {
         userId: data.userId,
         name: data.name,
         isTyping: false,
-      });
-    });
-
-    // === CHAT: Read Receipts ===
-    socket.on("mark-read", (data) => {
-      if (!data?.projectId || !data?.messageId || !data?.userId) return;
-      socket.to(data.projectId).emit("read-receipt", {
-        messageId: data.messageId,
-        userId: data.userId,
-        readAt: new Date(),
       });
     });
 
@@ -367,7 +288,15 @@ const createSocketServer = async (server, clientOrigin, redisUrl) => {
     });
   });
 
-  await initializeRedisAdapter();
+  try {
+    await initializeRedis();
+  } catch (error) {
+    logger.error("Failed to connect Redis for sockets", {
+      message: error.message,
+    });
+    throw error;
+  }
+
   return io;
 };
 

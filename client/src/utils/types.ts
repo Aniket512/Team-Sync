@@ -254,12 +254,6 @@ export interface TypingUser {
   isTyping: boolean;
 }
 
-export interface ReadReceipt {
-  messageId: string;
-  userId: string;
-  readAt: Date;
-}
-
 // ============== ANALYTICS TYPES ==============
 export interface ProjectAnalytics {
   tasksCompletedOverTime: { date: string; count: number }[];

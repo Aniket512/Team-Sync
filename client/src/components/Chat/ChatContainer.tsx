@@ -26,7 +26,6 @@ const ChatContainer = ({ socket }: { socket: Socket }) => {
   const [audio] = useState(new Audio("/notification.mp3"));
   const [arrivalMessage, setArrivalMessage] = useState<Message | null>(null);
   const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
-  const [readReceipts, setReadReceipts] = useState<Record<string, string[]>>({});
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSocketConnected, setIsSocketConnected] = useState(socket?.connected);
   const [pendingMessages, setPendingMessages] = useState<
@@ -196,25 +195,6 @@ const ChatContainer = ({ socket }: { socket: Socket }) => {
       socket?.off("typing-update", handleTypingUpdate);
     };
   }, [socket, currentUserId]);
-
-  useEffect(() => {
-    const handleReadReceipt = (data: {
-      messageId: string;
-      userId: string;
-      readAt: Date;
-    }) => {
-      setReadReceipts((prev) => {
-        const existing = prev[data.messageId] || [];
-        if (existing.includes(data.userId)) return prev;
-        return { ...prev, [data.messageId]: [...existing, data.userId] };
-      });
-    };
-
-    socket?.on("read-receipt", handleReadReceipt);
-    return () => {
-      socket?.off("read-receipt", handleReadReceipt);
-    };
-  }, [socket]);
 
   const postMessage = (msg: string, meta: SendMeta) => {
     stickToBottomRef.current = true;
@@ -485,11 +465,6 @@ const ChatContainer = ({ socket }: { socket: Socket }) => {
                       }`}
                     >
                       {moment(message.createdAt).format("HH:mm")}
-                      {message.fromSelf && readReceipts[message._id] && (
-                        <span className="ml-1 text-[10px] text-green-300">
-                          ✓✓
-                        </span>
-                      )}
                     </div>
                   </div>
                 </div>
