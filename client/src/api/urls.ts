@@ -1,10 +1,10 @@
 import { getAccessToken } from '../configs/auth';
 
 export const BASE_URL =
-  process.env.REACT_APP_BASE_URL || "http://localhost:5000";
+  process.env.BASE_URL || "http://localhost:5000";
 
 export const API_URL =
-  process.env.REACT_APP_API_URL || `${BASE_URL}/api`;
+  process.env.API_URL || `${BASE_URL}/api`;
 
 export function loginUrl() {
   return `${BASE_URL}/auth/login`;
