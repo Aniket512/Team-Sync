@@ -2,14 +2,15 @@ import { io } from "socket.io-client";
 import { BASE_URL } from "../api/urls";
 
 export const socket = io(BASE_URL, {
-  transports: ["websocket", "polling"],
+  // Prefer polling first so proxies that block WS still connect; then upgrade
+  transports: ["polling", "websocket"],
   withCredentials: true,
   autoConnect: true,
   reconnection: true,
-  // Keep trying so presence can re-register after brief network blips
   reconnectionAttempts: Infinity,
   reconnectionDelay: 1000,
   reconnectionDelayMax: 10000,
+  path: "/socket.io",
 });
 
 // Tell the server we are leaving so online status clears promptly
