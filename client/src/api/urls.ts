@@ -1,7 +1,7 @@
 import { getAccessToken } from '../configs/auth';
 
 export const BASE_URL =
-  process.env.BASE_URL || "http://localhost:5000";
+  process.env.BASE_URL || "https://team-sync-api.vercel.app";
 
 export const API_URL =
   process.env.API_URL || `${BASE_URL}/api`;
